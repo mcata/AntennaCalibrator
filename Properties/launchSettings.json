@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AntennaCalibrator_GA": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
