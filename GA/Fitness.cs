@@ -16,11 +16,11 @@ namespace AntennaCalibrator.GA
             _logger = logger;
         }
 
-        public double Evaluate(Chromosome chromosome)
+        public (double fitness, Statistic? statistic) Evaluate(Chromosome chromosome)
         {
             if (chromosome.Fitness != null)
             {
-                return chromosome.Fitness.Value;
+                return (chromosome.Fitness.Value, chromosome.Statistic);
             }
 
             var tempDir = Path.Combine(".\\temp", Guid.NewGuid().ToString());
@@ -55,22 +55,29 @@ namespace AntennaCalibrator.GA
                     _configuration.Sp3File.Files.First(),
                     outputPath);
 
-                var residues = FileManager.ReadResiduesFromFile($"{outputPath}.stat");
+                var residuals = FileManager.ReadResidualsFromFile($"{outputPath}.stat");
+                var coordinates = FileManager.ReadCoordinatesFromFile($"{outputPath}");
+                var statistic = EvaluateCoordinates(coordinates);
 
-                double avgSquaredResidual = residues
-                    .Where(r => r.Q == 2)
-                    .Select(r => r.Value * r.Value)
-                    .DefaultIfEmpty(1e6) // fallback per evitare DivisionByZero/NaN
-                    .Average();
+                double sumOfWeightedSquares = residuals.Sum(r =>
+                {
+                    double weight = Math.Pow(Math.Sin(r.Elevation * Math.PI / 180.0), 2); // peso = sin²(e)
+                    return weight * Math.Pow(r.Value, 2);
+                });
 
-                double fitness = 1.0 / (avgSquaredResidual + _epsilon);
+                double totalWeight = residuals.Sum(r =>
+                    Math.Pow(Math.Sin(r.Elevation * Math.PI / 180.0), 2));
 
-                return fitness;
+                double weightedRMSE = Math.Sqrt(sumOfWeightedSquares / totalWeight);
+
+                double fitness = 1.0 / (weightedRMSE + _epsilon);
+
+                return (fitness, statistic);
             }
             catch (Exception e)
             {
                 _logger?.Error($"Error during fitness evaluation: {e.Message}");
-                return 0.0;
+                return (0.0, null);
             }
             finally
             {
@@ -80,5 +87,34 @@ namespace AntennaCalibrator.GA
                 }
             }
         }
+
+        private Statistic? EvaluateCoordinates(List<Coordinate> coordinates)
+        {
+            var filtered = coordinates.Where(p => p.Q == 1).ToList();
+            if (!filtered.Any())
+            {
+                _logger?.Warning("\tNo valid positions with Q == 1.");
+                return null;
+            }
+
+            var xp = filtered.Select(p => p.X).ToList();
+            var yp = filtered.Select(p => p.Y).ToList();
+            var zp = filtered.Select(p => p.Z).ToList();
+
+            double avgX = xp.Average();
+            double avgY = yp.Average();
+            double avgZ = zp.Average();
+
+            double stdX = Math.Sqrt(xp.Average(x => Math.Pow(x - avgX, 2)));
+            double stdY = Math.Sqrt(yp.Average(y => Math.Pow(y - avgY, 2)));
+            double stdZ = Math.Sqrt(zp.Average(z => Math.Pow(z - avgZ, 2)));
+
+            return new Statistic()
+            {
+                Average = new double[3] { avgX, avgY, avgZ },
+                StandardDev = new double[3] { stdX, stdY, stdZ }
+            };
+        }
+
     }
 }

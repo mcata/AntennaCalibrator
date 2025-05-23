@@ -44,7 +44,7 @@ namespace AntennaCalibrator.GA
 
                 EvolveOneGeneration();
 
-                _logger?.Information($"  Fitness of best Chromosome: {_population.BestChromosome.Fitness}");
+                _logger?.Information($"\tFitness of best Chromosome: {_population.BestChromosome.Fitness:F4} ({_population.BestChromosome.Statistic!.ToString()})");
                 FileManager.WriteBestChromosomePerGeneration($@".\temp\best_chromosomes.csv", _population.CurrentGeneration.Chromosomes, i + 1);
 
                 genTimer.Stop();
@@ -53,17 +53,7 @@ namespace AntennaCalibrator.GA
 
                 if (IsStagnant(_population.BestChromosome, stagnantGenerationsNumber))
                 {
-                    _logger?.Warning($"Stagnation detected. Generating new individuals");
-                    var chromosomes = _population.CurrentGeneration.Chromosomes.ToList();
-                    int size = (int)Math.Round(_population.Size * 0.1);
-                    chromosomes = chromosomes.OrderByDescending(c => c.Fitness).Take(size).ToList();
-                    for (int j = 0; j < _population.Size - size; j++)
-                    {
-                        var baseChromosome = chromosomes.First();
-                        chromosomes.Add(baseChromosome.CreateNew());
-                    }
-
-                    _population.CurrentGeneration.Chromosomes = new ConcurrentBag<Chromosome>(chromosomes);
+                    ReplaceLowFitnessChromosomes();
                 }
             }
 
@@ -78,23 +68,6 @@ namespace AntennaCalibrator.GA
             ExternalTools.LaunchGraphMananger(@".\temp\fitness.txt");
         }
 
-        private bool IsStagnant(Chromosome bestChromosome, int? stagnantGenerationsNumber)
-        {
-            if (stagnantGenerationsNumber == null)
-            {
-                return false;
-            }
-
-            var generations = _population.Generations.ToList();
-            if (generations.Count < stagnantGenerationsNumber + 1)
-            {
-                return false;
-            }
-
-            var lastGenerations = generations.Skip(generations.Count - stagnantGenerationsNumber.Value - 1).Take(stagnantGenerationsNumber.Value);
-            return lastGenerations.All(g => g.BestChromosome.Fitness == bestChromosome.Fitness);
-        }
-
         private void EvolveOneGeneration()
         {
             var currentChromosomes = _population.CurrentGeneration.Chromosomes;
@@ -106,9 +79,9 @@ namespace AntennaCalibrator.GA
 
             var candidateChromosomes = Reinsert([.. offspring]);
 
-            _logger?.Verbose($"  Performing clustering");
-            var clusters = KMeansClustering.PerformCluster(currentChromosomes, k: 5, threshold: 0.1);
-            var algClusters = AlglibClustering.KmeansClustering(currentChromosomes.ToList(), k: 5, threshold: 0.1);
+            _logger?.Verbose($"\tPerforming clustering");
+            var clusters = KMeansClustering.PerformCluster(candidateChromosomes, k: 5, threshold: 0.1);
+            var algClusters = AlglibClustering.KmeansClustering(candidateChromosomes.ToList(), k: 5, threshold: 0.1);
             var (survivors, nDrops) = RemoveDuplicates(algClusters, candidateChromosomes);
 
             var nextGeneration = new ConcurrentBag<Chromosome>(survivors);
@@ -135,11 +108,13 @@ namespace AntennaCalibrator.GA
             int completed = 0;
             int lastPercentage = -1;
 
-            _logger?.Verbose($"  Evaluating fitness of {unevalutedChromosomes} chromosomes");
+            _logger?.Verbose($"\tEvaluating fitness of {unevalutedChromosomes} chromosomes");
 
             Parallel.ForEach(chromosomes, chromosome =>
             {
-                chromosome.Fitness = _fitness.Evaluate(chromosome);
+                var result = _fitness.Evaluate(chromosome);
+                chromosome.Fitness = result.fitness;
+                chromosome.Statistic = result.statistic;
 
                 int done = Interlocked.Increment(ref completed);
                 int percent = (done * 100) / total;
@@ -157,7 +132,7 @@ namespace AntennaCalibrator.GA
 
         private IEnumerable<Chromosome> SelectParents()
         {
-            _logger?.Verbose($"  Selecting parents");
+            _logger?.Verbose($"\tSelecting parents");
             var chromosomes = _population.CurrentGeneration.Chromosomes.ToList();
             return new List<Chromosome>
             {
@@ -188,7 +163,8 @@ namespace AntennaCalibrator.GA
 
             double probability = pcTemp * Math.Exp(_population.CurrentGeneration.Number / generations);
 
-            _logger?.Verbose($"  Performing crossover (p = {probability.ToString("0.00")})");
+            _logger?.Verbose($"\tPerforming crossover (p = {probability.ToString("0.00")})");
+            _logger?.Debug($"\t Parents fitness: p1: {parents[0].Fitness:F4}, p2: {parents[1].Fitness:F4}");
             return _crossover.PerformCross(parents, probability, distributionIndex);
         }
 
@@ -214,7 +190,7 @@ namespace AntennaCalibrator.GA
 
             double probability = pmTemp * Math.Exp(_population.CurrentGeneration.Number / generations);
 
-            _logger?.Verbose($"  Performing mutation (p = {probability.ToString("0.00")})");
+            _logger?.Verbose($"\tPerforming mutation (p = {probability.ToString("0.00")})");
             foreach (var chromosome in chromosomes)
             {
                 _mutation.PerformMutate(chromosome, probability);
@@ -223,7 +199,7 @@ namespace AntennaCalibrator.GA
 
         private ConcurrentBag<Chromosome> Reinsert(ConcurrentBag<Chromosome> offspring)
         {
-            _logger?.Verbose("  Reinserting offspring");
+            _logger?.Verbose("\tReinserting offspring");
 
             EvaluateFitness(offspring);
 
@@ -235,10 +211,9 @@ namespace AntennaCalibrator.GA
 
             foreach (var child in offspring)
             {
-                _logger?.Verbose($"     Child fitness: {child.Fitness}");
+                _logger?.Debug($"\t Child fitness: {child.Fitness:F4}");
                 if ((double)child.Fitness! > fAvg || (double)child.Fitness! > fMin)
                 {
-                    _logger?.Verbose("      Child added to population");
                     acceptedOffspring.Add(child);
                 }
             }
@@ -250,6 +225,50 @@ namespace AntennaCalibrator.GA
                 .Take(currentChromosomes.Count);
 
             return new ConcurrentBag<Chromosome>(combined);
+        }
+
+        private bool IsStagnant(Chromosome bestChromosome, int? stagnantGenerationsNumber)
+        {
+            if (stagnantGenerationsNumber == null)
+            {
+                return false;
+            }
+
+            var generations = _population.Generations.ToList();
+            if (generations.Count < stagnantGenerationsNumber + 1)
+            {
+                return false;
+            }
+
+            var lastGenerations = generations.Skip(generations.Count - stagnantGenerationsNumber.Value - 1).Take(stagnantGenerationsNumber.Value);
+            return lastGenerations.All(g => g.BestChromosome.Fitness == bestChromosome.Fitness);
+        }
+
+        private void ReplaceLowFitnessChromosomes()
+        {
+            _logger?.Warning("Stagnation detected. Replacing chromosomes with fitness < (mean - sigma)");
+
+            var chromosomes = _population.CurrentGeneration.Chromosomes.ToList();
+            var fitnessValues = chromosomes.Select(c => c.Fitness ?? 0).ToList();
+
+            double mean = fitnessValues.Average();
+            double stdDev = Math.Sqrt(fitnessValues.Average(v => Math.Pow(v - mean, 2)));
+            double threshold = mean - stdDev;
+
+            _logger?.Debug($"\tFitness mean: {mean:F4}, std: {stdDev:F4}, threshold: {threshold:F4}");
+
+            // Crea lista aggiornata con rimozione dei peggiori
+            var survivors = chromosomes.Where(c => (c.Fitness ?? 0) >= threshold).ToList();
+            int replacementsNeeded = _population.Size - survivors.Count;
+            _logger?.Debug($"\tReplacing {replacementsNeeded} chromosomes");
+
+            var baseChromosome = survivors.FirstOrDefault() ?? chromosomes.OrderByDescending(c => c.Fitness ?? 0).First();
+            var newIndividuals = Enumerable
+                .Range(0, replacementsNeeded)
+                .Select(_ => baseChromosome.CreateNew());
+
+            var newGeneration = survivors.Concat(newIndividuals);
+            _population.CurrentGeneration.Chromosomes = new ConcurrentBag<Chromosome>(newGeneration);
         }
 
         private (IEnumerable<Chromosome> survivors, int nDrops) RemoveDuplicates(IEnumerable<IEnumerable<Cluster>> clusters, ConcurrentBag<Chromosome> chromosomes)
@@ -275,7 +294,8 @@ namespace AntennaCalibrator.GA
                 }
             }
 
-            _logger?.Verbose($"  Removed {nDrops} similar chromosomes from population");
+            if (nDrops > 0)
+                _logger?.Warning($"\tRemoved {nDrops} similar chromosomes from population");
 
             return (population, nDrops);
         }

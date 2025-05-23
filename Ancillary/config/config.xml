@@ -1,36 +1,36 @@
 ﻿<Configuration>
 	<Generation>
-		<Number>500</Number>
+		<Number>50</Number>
 		<StagnantNumber>10</StagnantNumber>
 	</Generation>
-	<PopulationSize>1000</PopulationSize>
+	<PopulationSize>100</PopulationSize>
 	<Crossover>
 		<Probability>0.8</Probability>
-		<DistributionIndex>20</DistributionIndex>
+		<DistributionIndex>10</DistributionIndex>
 	</Crossover>
 	<Mutation>
 		<Probability>0.05</Probability>
 		<Noise>1</Noise>
 	</Mutation>
 	<RoverRinex>
-		<File>C:\Users\mcata\Desktop\data\G31400ITA\G31400ITA_R_20231110000_01D_30S_MO.rnx</File>
-		<File>C:\Users\mcata\Desktop\data\G31400ITA\G31400ITA_R_20231120000_01D_30S_MO.rnx</File>
+		<File>.\data\G31400ITA\G31400ITA_R_20231080000_01D_30S_MO.rnx</File>
+		<File>.\data\G31400ITA\G31400ITA_R_20231090000_01D_30S_MO.rnx</File>
 	</RoverRinex>
 	<ReferenceRinex>
-		<File>C:\Users\mcata\Desktop\data\G32200ITA\G32200ITA_R_20231110000_01D_30S_MO.rnx</File>
-		<File>C:\Users\mcata\Desktop\data\G32200ITA\G32200ITA_R_20231120000_01D_30S_MO.rnx</File>
+		<File>.\data\G32200ITA\G32200ITA_R_20231080000_01D_30S_MO.rnx</File>
+		<File>.\data\G32200ITA\G32200ITA_R_20231090000_01D_30S_MO.rnx</File>
 	</ReferenceRinex>
 	<NavigationRinex>
-		<File>C:\Users\mcata\Desktop\data\nav\BRDC00WRD_R_20231110000_01D_MN.rnx</File>
-		<File>C:\Users\mcata\Desktop\data\nav\BRDC00WRD_R_20231120000_01D_MN.rnx</File>
+		<File>.\data\nav\BRDC00WRD_R_20231080000_01D_MN.rnx</File>
+		<File>.\data\nav\BRDC00WRD_R_20231090000_01D_MN.rnx</File>
 	</NavigationRinex>
 	<Sp3File>
-		<File>C:\Users\mcata\Desktop\data\eph\IGS0OPSRAP_20231110000_01D_15M_ORB.SP3</File>
-		<File>C:\Users\mcata\Desktop\data\eph\IGS0OPSRAP_20231120000_01D_15M_ORB.SP3</File>
+		<File>.\data\eph\IGS0OPSRAP_20231080000_01D_15M_ORB.SP3</File>
+		<File>.\data\eph\IGS0OPSRAP_20231090000_01D_15M_ORB.SP3</File>
 	</Sp3File>
 	<ErpFile>
-		<File>C:\Users\mcata\Desktop\data\eph\IGS0OPSRAP_20231110000_01D_01D_ERP.ERP</File>
-		<File>C:\Users\mcata\Desktop\data\eph\IGS0OPSRAP_20231120000_01D_01D_ERP.ERP</File>
+		<File>.\data\eph\IGS0OPSRAP_20231080000_01D_01D_ERP.ERP</File>
+		<File>.\data\eph\IGS0OPSRAP_20231090000_01D_01D_ERP.ERP</File>
 	</ErpFile>
 	<ReferencePosition>
 		<X>4444692.8641</X>

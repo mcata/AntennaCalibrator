@@ -5,6 +5,7 @@ namespace AntennaCalibrator.GA
     internal class Chromosome
     {
         public double? Fitness { get; set; }
+        public Statistic? Statistic { get; set; }
 
         private double[] genes;
 

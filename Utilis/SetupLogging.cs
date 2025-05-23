@@ -13,6 +13,7 @@ namespace AntennaCalibrator.Utilis
         {
             [ConsoleThemeStyle.Text] = "\u001b[37m",        // Bianco
             [ConsoleThemeStyle.SecondaryText] = "\u001b[90m", // Grigio
+            [ConsoleThemeStyle.LevelDebug] = "\u001b[34m", // Blu
             [ConsoleThemeStyle.LevelVerbose] = "\u001b[36m",  // Azzurro
             [ConsoleThemeStyle.LevelInformation] = "\u001b[32m", // Verde
             [ConsoleThemeStyle.LevelWarning] = "\u001b[33m", // Giallo

@@ -7,7 +7,7 @@ namespace AntennaCalibrator
     {
         static void Main(string[] args)
         {
-            var logger = SetupLogging.CreateThreadLogger(@".\log\Calibrator.log", "Calibrator");
+            var logger = SetupLogging.CreateThreadLogger(@".\", "Calibrator");
             logger.Information($"Antenna Calibrator ({AppVersion.GetApplicationInfo()})");
 
             // Load the configuration

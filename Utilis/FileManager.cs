@@ -31,7 +31,7 @@ namespace AntennaCalibrator.Utilis
             File.WriteAllLines(path, content);
         }
 
-        public static List<Residue> ReadResiduesFromFile(string path)
+        public static List<Residue> ReadResidualsFromFile(string path)
         {
             const int delayMs = 2500;
 
@@ -42,7 +42,6 @@ namespace AntennaCalibrator.Utilis
 
             using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                // File aperto con successo, ora leggiamo il contenuto
                 using (var reader = new StreamReader(stream))
                 {
                     var residues = new List<Residue>();
@@ -67,6 +66,51 @@ namespace AntennaCalibrator.Utilis
 
                     return residues;
                 }
+            }
+
+            throw new IOException($"Impossibile leggere il file '{path}'.");
+        }
+
+        public static List<Coordinate> ReadCoordinatesFromFile(string path)
+        {
+            const int delayMs = 2500;
+
+            while (IsFileLocked(path))
+            {
+                Thread.Sleep(delayMs);
+            }
+
+            using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var reader = new StreamReader(stream))
+            {
+                var coordinates = new List<Coordinate>();
+                string? line;
+                bool startReading = false;
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (!startReading)
+                    {
+                        if (!line.Contains("%"))
+                            startReading = true;
+
+                        continue;
+                    }
+
+                    var tokens = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                    if (tokens.Length >= 6)
+                    {
+                        coordinates.Add(new Coordinate
+                        {
+                            X = double.Parse(tokens[2], CultureInfo.InvariantCulture),
+                            Y = double.Parse(tokens[3], CultureInfo.InvariantCulture),
+                            Z = double.Parse(tokens[4], CultureInfo.InvariantCulture),
+                            Q = int.Parse(tokens[5])
+                        });
+                    }
+                }
+
+                return coordinates;
             }
 
             throw new IOException($"Impossibile leggere il file '{path}'.");
@@ -155,13 +199,17 @@ namespace AntennaCalibrator.Utilis
                 .OrderByDescending(c => c.Fitness)
                 .First();
 
+            var fitnessValues = population.Select(c => c.Fitness ?? 0).ToList();
+            double mean = fitnessValues.Average();
+            double sigma = Math.Sqrt(fitnessValues.Average(f => Math.Pow(f - mean, 2)));
+
             // Prepara l'intestazione se il file non esiste
             bool fileExists = File.Exists(path);
             var sb = new StringBuilder();
 
             if (!fileExists)
             {
-                var header = new List<string> { "Generation", "Fitness" };
+                var header = new List<string> { "Generation", "Fitness", "Mean", "Sigma" };
                 header.AddRange(Enumerable.Range(0, 22).Select(i => $"Gene{i + 1}"));
                 sb.AppendLine(string.Join(separator, header));
             }
@@ -169,7 +217,9 @@ namespace AntennaCalibrator.Utilis
             var row = new List<string>
             {
                 generationNumber.ToString(),
-                ((double)best.Fitness!).ToString("0.000000", culture)
+                ((double)best.Fitness!).ToString("0.000000", culture),
+                mean.ToString("0.000000", culture),
+                sigma.ToString("0.000000", culture)
             };
 
             row.AddRange(best.GetGenes().Select(g =>
