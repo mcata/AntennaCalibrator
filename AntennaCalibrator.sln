@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntennaCalibrator", "AntennaCalibrator.csproj", "{B18A126F-493C-03BE-2F17-83E6BD4B75E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntennaCalibrator", "AntennaCalibrator.Host\AntennaCalibrator.csproj", "{B18A126F-493C-03BE-2F17-83E6BD4B75E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntennaCalibrator.View", "AntennaCalibrator.View\AntennaCalibrator.View\AntennaCalibrator.View\AntennaCalibrator.View.csproj", "{5E49F219-792B-4713-A899-66320FBD716D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntennaCalibrator.View.Shared", "AntennaCalibrator.View\AntennaCalibrator.View\AntennaCalibrator.View.Shared\AntennaCalibrator.View.Shared.csproj", "{3C9A4BFC-0690-4B14-B8BE-48AD37311CC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntennaCalibrator.View.Web", "AntennaCalibrator.View\AntennaCalibrator.View\AntennaCalibrator.View.Web\AntennaCalibrator.View.Web.csproj", "{D4C059F2-2B6A-4210-BFF2-E7C0903F3EBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,19 @@ Global
 		{B18A126F-493C-03BE-2F17-83E6BD4B75E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B18A126F-493C-03BE-2F17-83E6BD4B75E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B18A126F-493C-03BE-2F17-83E6BD4B75E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E49F219-792B-4713-A899-66320FBD716D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E49F219-792B-4713-A899-66320FBD716D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E49F219-792B-4713-A899-66320FBD716D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{5E49F219-792B-4713-A899-66320FBD716D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E49F219-792B-4713-A899-66320FBD716D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C9A4BFC-0690-4B14-B8BE-48AD37311CC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C9A4BFC-0690-4B14-B8BE-48AD37311CC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C9A4BFC-0690-4B14-B8BE-48AD37311CC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C9A4BFC-0690-4B14-B8BE-48AD37311CC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4C059F2-2B6A-4210-BFF2-E7C0903F3EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4C059F2-2B6A-4210-BFF2-E7C0903F3EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4C059F2-2B6A-4210-BFF2-E7C0903F3EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4C059F2-2B6A-4210-BFF2-E7C0903F3EBD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

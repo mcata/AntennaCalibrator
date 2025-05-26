@@ -3,6 +3,7 @@ using AntennaCalibrator.Utilis;
 using Serilog;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Reflection.Emit;
 
 namespace AntennaCalibrator.GA
 {
@@ -28,12 +29,14 @@ namespace AntennaCalibrator.GA
             _logger = logger;
         }
 
-        public void Run(int generations, int? stagnantGenerationsNumber = null)
+        public async Task Run(int generations, int? stagnantGenerationsNumber = null, List<double>? values = null)
         {
             _generations = generations;
 
             var runTimer = new Stopwatch();
             runTimer.Start();
+
+            using var pipeService = new PipeSenderService();
 
             for (int i = 0; i < generations; i++)
             {
@@ -50,6 +53,40 @@ namespace AntennaCalibrator.GA
                 genTimer.Stop();
                 var timeElapsed = FormatTimeElapsed(genTimer.Elapsed);
                 _logger?.Verbose($"Generation {i + 1} ended. Time: {timeElapsed}");
+
+                var topChromosomes = _population.CurrentGeneration.Chromosomes
+                    .OrderByDescending(c => c.Fitness)
+                    .Take(3) 
+                    .ToList();
+
+                var topChromosomesList = topChromosomes
+                    .Select(c => new GenerationChromosome
+                    {
+                        Fitness = c.Fitness,
+                        Statistic = c.Statistic,
+                        Genes = c.GetGenes().Skip(3).ToArray() // Skip first 3 genes (PCO)
+                    })
+                    .ToList();
+
+
+                if (values != null)
+                {
+                    topChromosomesList.Insert(0, new GenerationChromosome
+                    {
+                        Fitness = 0,
+                        Statistic = null,
+                        Genes = values.ToArray().Skip(3).ToArray()
+                    });
+                }
+
+                var summary = new GenerationSummary
+                {
+                    GenerationNumber = i + 1,
+                    TimeElapsed = timeElapsed,
+                    TopChromosomes = topChromosomesList
+                };
+
+                await pipeService.SendAsync(summary);
 
                 if (IsStagnant(_population.BestChromosome, stagnantGenerationsNumber))
                 {

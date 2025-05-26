@@ -3,7 +3,7 @@
 		<Number>50</Number>
 		<StagnantNumber>10</StagnantNumber>
 	</Generation>
-	<PopulationSize>100</PopulationSize>
+	<PopulationSize>5</PopulationSize>
 	<Crossover>
 		<Probability>0.8</Probability>
 		<DistributionIndex>10</DistributionIndex>

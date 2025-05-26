@@ -5,7 +5,7 @@ namespace AntennaCalibrator
 {
     internal class Calibrator
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var logger = SetupLogging.CreateThreadLogger(@".\", "Calibrator");
             logger.Information($"Antenna Calibrator ({AppVersion.GetApplicationInfo()})");
@@ -30,7 +30,7 @@ namespace AntennaCalibrator
                 logger
             );
 
-            ga.Run(config.Generation.Number, config.Generation.StagnantNumber);
+            await ga.Run(config.Generation.Number, config.Generation.StagnantNumber, config.StartValues.Values);
         }
     }
 }

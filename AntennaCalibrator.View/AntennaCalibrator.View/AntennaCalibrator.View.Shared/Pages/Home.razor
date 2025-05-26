@@ -1,0 +1,47 @@
+﻿@page "/"
+@using AntennaCalibrator.View.Shared.Components
+@using AntennaCalibrator.View.Shared.Model
+@using AntennaCalibrator.View.Shared.Services
+
+@inject IFormFactor FormFactor
+@inject PipeService PipeService
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
+
+@if (receivedData != null)
+{
+    <ChromosomePlot Chromosomes="receivedData.TopChromosomes" />
+}
+
+
+@code {
+    private string factor => FormFactor.GetFormFactor();
+    private string platform => FormFactor.GetPlatform();
+
+    private GenerationSummary? receivedData = null;
+
+    protected override void OnInitialized()
+    {
+        PipeService.DataReceived += OnDataReceived;
+        PipeService.StartListening();
+    }
+
+    private void OnDataReceived(object? sender, string data)
+    {
+        InvokeAsync(() =>
+        {
+            receivedData = System.Text.Json.JsonSerializer.Deserialize<GenerationSummary>(data);
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        PipeService.DataReceived -= OnDataReceived;
+        PipeService.StopListening();
+    }
+}

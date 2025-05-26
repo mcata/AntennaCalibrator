@@ -1,0 +1,52 @@
+﻿@using AntennaCalibrator.View.Shared.Model
+@inject IJSRuntime JS
+
+<div id="chromosome-plot" style="width: 100%; height: 500px;"></div>
+
+@code {
+    [Parameter] public IEnumerable<GenerationChromosome> Chromosomes { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var colors = new[] { "red", "blue", "green", "orange", "purple", "brown", "pink", "gray", "olive", "cyan" };
+            var range = Enumerable.Range(0, 20).Select(i => i * 5);
+
+            var chromosomes = Chromosomes
+                .Select((c, idx) =>
+                {
+                    var color = colors[idx % colors.Length];
+                    var isReal = idx == 0;
+
+                    return new
+                    {
+                        x = range,
+                        y = c.Genes,
+                        mode = "markers",
+                        name = isReal ? "Real PCV" : $"Chr. {idx}",
+                        marker = new
+                        {
+                            size = isReal ? 8 : 7,
+                            color,
+                            symbol = isReal ? "square" : "circle"
+                        },
+                        line = new
+                        {
+                            color
+                        }
+                    };
+                })
+                .ToArray();
+
+            var layout = new
+            {
+                title = "PCV",
+                xaxis = new { title = "Gene index (Zenith)" },
+                yaxis = new { title = "PCV [mm]" }
+            };
+
+            await JS.InvokeVoidAsync("plotlyInterop.plotChromosomes", "chromosome-plot", chromosomes, layout);
+        }
+    }
+}

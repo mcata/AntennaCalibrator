@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="_content/AntennaCalibrator.View.Shared/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="_content/AntennaCalibrator.View.Shared/app.css" />
+    <link rel="stylesheet" href="AntennaCalibrator.View.Web.styles.css" />
+    <link rel="icon" type="image/png" href="_content/AntennaCalibrator.View.Shared/favicon.png" />
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_framework/blazor.web.js"></script>
+
+    <script src="_content/AntennaCalibrator.View.Shared/js/plotInterop.js"></script>
+</body>
+
+</html>
