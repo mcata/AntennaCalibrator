@@ -4,7 +4,7 @@ window.plotlyInterop = {
             responsive: true,
             displayModeBar: true,
             displaylogo: false,
-            modeBarButtonsToRemove: ['sendDataToCloud', 'editInChartStudio', 'zoom2d', 'select2d', 'pan2d', 'lasso2d', 'autoScale2d', 'resetScale2d']
+            modeBarButtonsToRemove: ['zoomIn', 'zoomOut', 'sendDataToCloud', 'editInChartStudio', 'zoom2d', 'select2d', 'pan2d', 'lasso2d', 'autoScale2d', 'resetScale2d']
         };
 
         Plotly.newPlot(divId, data, layout, config);

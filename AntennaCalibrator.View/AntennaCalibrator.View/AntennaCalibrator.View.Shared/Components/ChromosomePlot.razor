@@ -43,14 +43,15 @@
             {
                 xaxis = new 
                 { 
-                    title = new { text = "Zenith angle [°]" },
+                    title = new { text = "Zenith angle" },
                     tickvals = Enumerable.Range(0, 20).Select(i => i * 5).ToArray(),
                     ticktext = Enumerable.Range(0, 20).Select(i => $"{i * 5}°").ToArray(),
                     tickmode = "array",
                     range = new[] { -2, 92 },
                     dtick = 5
                 },
-                yaxis = new { title = new { text = "PCV [mm]" } }
+                yaxis = new { title = new { text = "PCV [mm]" } },
+                legend = new { orientation = "h", yanchor = "bottom", y = 1.02, xanchor = "right", x = 1 }
             };
 
             await JS.InvokeVoidAsync("plotlyInterop.plotChromosomes", "chromosome-plot", chromosomes, layout);
