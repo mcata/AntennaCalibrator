@@ -16,7 +16,15 @@
 
     public async Task RefreshAsync()
     {
-        var colors = new[] { "3CB371", "87CEFA", "F4A460", "9370DB", "DDA0DD", "FFB6C1" };
+        var colors = new[]
+        {
+            "#2ecc71", // Verde smeraldo
+            "#3498db", // Blu elettrico
+            "#e74c3c", // Rosso corallo
+            "#f39c12", // Arancione dorato
+            "#9b59b6", // Viola ametista
+            "#717d7e"  // Grigio 
+        };
         var range = Enumerable.Range(0, 20).Select(i => i * 5);
 
         var chromosomes = Chromosomes

@@ -42,8 +42,8 @@ namespace AntennaCalibrator
         {
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = @".\AntennaCalibrator.View.exe",
-                UseShellExecute = true // Necessario per avviare app GUI
+                FileName = @".\Ancillary\sw\UI\AntennaCalibrator.View.exe",
+                UseShellExecute = true
             };
 
             Process.Start(startInfo);

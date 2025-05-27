@@ -3,7 +3,6 @@ using AntennaCalibrator.Utilis;
 using Serilog;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Reflection.Emit;
 
 namespace AntennaCalibrator.GA
 {
@@ -58,7 +57,7 @@ namespace AntennaCalibrator.GA
 
                 var topChromosomes = _population.CurrentGeneration.Chromosomes
                     .OrderByDescending(c => c.Fitness)
-                    .Take(5) 
+                    .Take(5)
                     .ToList();
 
                 var topChromosomesList = topChromosomes

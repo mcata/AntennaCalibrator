@@ -1,6 +1,4 @@
-﻿using System.Runtime.Intrinsics.X86;
-
-namespace AntennaCalibrator.Utilis
+﻿namespace AntennaCalibrator.Utilis
 {
     public class Coordinate
     {
