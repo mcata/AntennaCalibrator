@@ -1,5 +1,6 @@
 ﻿using AntennaCalibrator.GA;
 using AntennaCalibrator.Utilis;
+using System.Diagnostics;
 
 namespace AntennaCalibrator
 {
@@ -18,6 +19,10 @@ namespace AntennaCalibrator
                 return;
             }
 
+#if !DEBUG
+            LaunchUI();
+#endif
+
             var population = new SteadyStatePopulation(config.PopulationSize, logger);
             population.CreateInitialGeneration(config.MeanStdValues.Mean, config.MeanStdValues.Std, config.StartValues.Values.Take(3).ToArray());
 
@@ -31,6 +36,17 @@ namespace AntennaCalibrator
             );
 
             await ga.Run(config.Generation.Number, config.Generation.StagnantNumber, config.StartValues.Values);
+        }
+
+        private static void LaunchUI()
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = @".\AntennaCalibrator.View.exe",
+                UseShellExecute = true // Necessario per avviare app GUI
+            };
+
+            Process.Start(startInfo);
         }
     }
 }
