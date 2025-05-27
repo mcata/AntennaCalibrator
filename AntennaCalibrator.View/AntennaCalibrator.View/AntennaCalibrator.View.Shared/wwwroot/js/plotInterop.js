@@ -1,5 +1,12 @@
 window.plotlyInterop = {
     plotChromosomes: function (divId, data, layout) {
-        Plotly.newPlot(divId, data, layout);
+        var config = {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false,
+            modeBarButtonsToRemove: ['sendDataToCloud', 'editInChartStudio', 'zoom2d', 'select2d', 'pan2d', 'lasso2d', 'autoScale2d', 'resetScale2d']
+        };
+
+        Plotly.newPlot(divId, data, layout, config);
     }
 };
