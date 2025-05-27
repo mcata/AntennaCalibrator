@@ -1,0 +1,21 @@
+﻿<div class="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+    <div class="mb-6 flex flex-col sm:flex-row sm:justify-between">
+        <div class="w-full">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+                @Title
+            </h3>
+            <p class="text-theme-sm mt-1 text-gray-500 dark:text-gray-400">
+                @Description
+            </p>
+        </div>
+    </div>
+    <div class="custom-scrollbar max-w-full overflow-x-auto">
+        @ChartContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChartContent { get; set; }
+}

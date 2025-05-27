@@ -10,51 +10,57 @@
     {
         if (firstRender)
         {
-            var colors = new[] { "red", "blue", "green", "orange", "purple", "brown", "pink", "gray", "olive", "cyan" };
-            var range = Enumerable.Range(0, 20).Select(i => i * 5);
-
-            var chromosomes = Chromosomes
-                .Select((c, idx) =>
-                {
-                    var color = colors[idx % colors.Length];
-                    var isReal = idx == 0;
-
-                    return new
-                    {
-                        x = range,
-                        y = c.Genes,
-                        mode = "markers",
-                        name = isReal ? "Real PCV" : $"Chr. {idx}",
-                        marker = new
-                        {
-                            size = isReal ? 8 : 7,
-                            color,
-                            symbol = isReal ? "square" : "circle"
-                        },
-                        line = new
-                        {
-                            color
-                        }
-                    };
-                })
-                .ToArray();
-
-            var layout = new
-            {
-                xaxis = new 
-                { 
-                    title = new { text = "Zenith angle" },
-                    tickvals = Enumerable.Range(0, 20).Select(i => i * 5).ToArray(),
-                    ticktext = Enumerable.Range(0, 20).Select(i => $"{i * 5}°").ToArray(),
-                    tickmode = "array",
-                    range = new[] { -2, 92 },
-                    dtick = 5
-                },
-                yaxis = new { title = new { text = "PCV [mm]" } },
-                legend = new { orientation = "h", yanchor = "bottom", y = 1.02, xanchor = "right", x = 1 }
-            };
-
-            await JS.InvokeVoidAsync("plotlyInterop.plotChromosomes", "chromosome-plot", chromosomes, layout);
+            await RefreshAsync();
         }
+    }
+
+    public async Task RefreshAsync()
+    {
+        var colors = new[] { "28b463", "e74c3c", "3498db", "f1c40f", "8e44ad", "dc7633" };
+        var range = Enumerable.Range(0, 20).Select(i => i * 5);
+
+        var chromosomes = Chromosomes
+            .Select((c, idx) =>
+            {
+                var color = colors[idx % colors.Length];
+                var isReal = idx == 0;
+
+                return new
+                {
+                    x = range,
+                    y = c.Genes,
+                    mode = "markers",
+                    name = isReal ? "Real PCV" : $"Chr. {idx}",
+                    marker = new
+                    {
+                        size = isReal ? 10 : 8,
+                        color,
+                        symbol = isReal ? "square" : "circle"
+                    },
+                    line = new
+                    {
+                        color
+                    }
+                };
+            })
+            .ToArray();
+
+        var layout = new
+        {
+            xaxis = new
+            {
+                title = new { text = "Zenith angle" },
+                tickvals = Enumerable.Range(0, 20).Select(i => i * 5).ToArray(),
+                ticktext = Enumerable.Range(0, 20).Select(i => $"{i * 5}°").ToArray(),
+                tickmode = "array",
+                range = new[] { -2, 92 },
+                dtick = 5
+            },
+            yaxis = new { title = new { text = "PCV [mm]" } },
+            legend = new { orientation = "h", yanchor = "bottom", y = 1.02, xanchor = "right", x = 1 },
+            margin = new { t = 20, l = 40, r = 20, b = 40 }
+        };
+
+        await JS.InvokeVoidAsync("plotlyInterop.plotChart", "chromosome-plot", chromosomes, layout);
     }
 }

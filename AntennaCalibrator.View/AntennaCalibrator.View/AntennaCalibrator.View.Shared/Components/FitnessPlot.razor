@@ -1,0 +1,41 @@
+﻿@using AntennaCalibrator.View.Shared.Model
+@inject IJSRuntime JS
+
+<div id="fitness-plot" style="width: 100%; height: 250px;"></div>
+
+@code {
+    [Parameter] public IEnumerable<double> Fitness { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshAsync();
+        }
+    }
+
+    public async Task RefreshAsync()
+    {
+        var color = "A9B0D4";
+
+        var data = new[]
+        {
+            new
+            {
+                x = Enumerable.Range(1, Fitness.Count() + 1).ToArray(),
+                y = Fitness.ToArray(),
+                mode = "lines",
+                line = new { color }
+            }
+        };
+
+        var layout = new
+        {
+            xaxis = new { title = new { text = "Generations" } },
+            showlegend = false,
+            margin = new { t = 20, l = 40, r = 20, b = 40 }
+        };
+
+        await JS.InvokeVoidAsync("plotlyInterop.plotChart", "fitness-plot", data, layout);
+    }
+}

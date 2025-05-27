@@ -5,9 +5,15 @@ namespace AntennaCalibrator.GA
 {
     internal class GenerationSummary
     {
-        public int GenerationNumber { get; set; }
-        public string TimeElapsed { get; set; }
+        public FitnessStatistic FitnessStatistic { get; set; }
         public List<GenerationChromosome> TopChromosomes { get; set; }
+    }
+
+    internal class FitnessStatistic
+    {
+        public double Average { get; set; }
+        public double Best { get; set; }
+        public double StandardDeviation { get; set; }
     }
 
     internal class GenerationChromosome

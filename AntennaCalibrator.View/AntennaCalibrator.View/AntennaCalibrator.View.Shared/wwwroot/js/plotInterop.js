@@ -1,5 +1,5 @@
 window.plotlyInterop = {
-    plotChromosomes: function (divId, data, layout) {
+    plotChart: function (divId, data, layout) {
         var config = {
             responsive: true,
             displayModeBar: true,
@@ -7,6 +7,7 @@ window.plotlyInterop = {
             modeBarButtonsToRemove: ['zoomIn', 'zoomOut', 'sendDataToCloud', 'editInChartStudio', 'zoom2d', 'select2d', 'pan2d', 'lasso2d', 'autoScale2d', 'resetScale2d']
         };
 
-        Plotly.newPlot(divId, data, layout, config);
+        console.log("Plotting chart in div: " + divId);
+        Plotly.react(divId, data, layout, config);
     }
 };

@@ -36,6 +36,8 @@ namespace AntennaCalibrator.GA
             var runTimer = new Stopwatch();
             runTimer.Start();
 
+            if (Directory.Exists(@".\temp")) Directory.Delete(@".\temp", true);
+
             using var pipeService = new PipeSenderService();
 
             for (int i = 0; i < generations; i++)
@@ -56,7 +58,7 @@ namespace AntennaCalibrator.GA
 
                 var topChromosomes = _population.CurrentGeneration.Chromosomes
                     .OrderByDescending(c => c.Fitness)
-                    .Take(3) 
+                    .Take(5) 
                     .ToList();
 
                 var topChromosomesList = topChromosomes
@@ -81,8 +83,7 @@ namespace AntennaCalibrator.GA
 
                 var summary = new GenerationSummary
                 {
-                    GenerationNumber = i + 1,
-                    TimeElapsed = timeElapsed,
+                    FitnessStatistic = CalculateFitnessStatistic(),
                     TopChromosomes = topChromosomesList
                 };
 
@@ -130,7 +131,7 @@ namespace AntennaCalibrator.GA
 
             var populationDir = @".\temp\population";
             Directory.CreateDirectory(populationDir);
-            FileManager.WritePopulation($@"{populationDir}\{_population.CurrentGeneration.Number}.csv", _population.CurrentGeneration.Chromosomes);
+            FileManager.WritePopulation($@"{populationDir}\{_population.CurrentGeneration.Number}.csv", _population.CurrentGeneration.Chromosomes.OrderByDescending(c => c.Fitness));
 
             _population.EndCurrentGeneration();
             _population.CreateNewGeneration(nextGeneration);
@@ -335,6 +336,22 @@ namespace AntennaCalibrator.GA
                 _logger?.Warning($"\tRemoved {nDrops} similar chromosomes from population");
 
             return (population, nDrops);
+        }
+
+        private FitnessStatistic CalculateFitnessStatistic()
+        {
+            var chromosomes = _population.CurrentGeneration.Chromosomes.ToList();
+            var fitnessValues = chromosomes.Select(c => c.Fitness ?? 0).ToList();
+
+            double mean = fitnessValues.Average();
+            double stdDev = Math.Sqrt(fitnessValues.Average(v => Math.Pow(v - mean, 2)));
+
+            return new FitnessStatistic
+            {
+                Average = mean,
+                Best = fitnessValues.Max(),
+                StandardDeviation = stdDev
+            };
         }
 
         private string FormatTimeElapsed(TimeSpan timeElapsed)

@@ -166,7 +166,6 @@ namespace AntennaCalibrator.Utilis
             header.AddRange(Enumerable.Range(0, 22).Select(i => $"Gene{i + 1}"));
             sb.AppendLine(string.Join(separator, header));
 
-            // Dati
             for (int i = 0; i < population.Count(); i++)
             {
                 var chromosome = population.ElementAt(i);
