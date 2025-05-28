@@ -48,6 +48,13 @@ namespace AntennaCalibrator.GA
 
                 EvolveOneGeneration();
 
+                if ((i + 1) % stagnantGenerationsNumber == 0)
+                {
+                    double[] improvedGenes = LocalSearch(_population.BestChromosome, Evaluate);
+                    _population.BestChromosome.ReplaceGenes(0, improvedGenes);
+                    EvaluateFitness(new ConcurrentBag<Chromosome> { _population.BestChromosome });
+                }
+
                 _logger?.Information($"\tFitness of best Chromosome: {_population.BestChromosome.Fitness:F4} ({_population.BestChromosome.Statistic!.ToString()})");
                 FileManager.WriteBestChromosomePerGeneration($@".\temp\best_chromosomes.csv", _population.CurrentGeneration.Chromosomes, i + 1);
 
@@ -165,6 +172,15 @@ namespace AntennaCalibrator.GA
             });
 
             Console.WriteLine();
+        }
+
+        public double Evaluate(double[] genes)
+        {
+            var chromosome = new Chromosome(genes);
+            
+            var (fitness, _) = _fitness.Evaluate(chromosome);
+
+            return fitness;
         }
 
         private IEnumerable<Chromosome> SelectParents()
@@ -360,6 +376,54 @@ namespace AntennaCalibrator.GA
                 Best = fitnessValues.Max(),
                 StandardDeviation = stdDev
             };
+        }
+
+        double[] LocalSearch(Chromosome chromosome, Func<double[], double> fitnessFunc, double step = 0.01, int maxIterations = 5)
+        {
+            // Coordinate descent local search:
+            // algoritmo che ottimizza una sola variabile per volta, mantenendo tutte le altre fisse.
+
+            double[] genes = chromosome.GetGenes().ToArray();
+            double[] bestGenes = (double[])chromosome.GetGenes().ToArray().Clone();
+            double bestFitness = (double)chromosome.Fitness!;
+            _logger?.Verbose($"[Coordinate descent] Initial fitness: {bestFitness:F4}");
+
+            for (int iter = 0; iter < maxIterations; iter++)
+            {
+                bool improved = false;
+                _logger?.Debug($"\tIteration {iter + 1}");
+
+                for (int i = 4; i < bestGenes.Length; i++)
+                {
+                    foreach (var direction in new[] { +1.0, -1.0 })
+                    {
+                        double[] candidate = (double[])bestGenes.Clone();
+                        candidate[i] += direction * step;
+
+                        double candidateFitness = fitnessFunc(candidate);
+                        _logger?.Debug($"\t [Gene {i}] Direction {(direction > 0 ? "+" : "-")}");
+
+                        const double MinImprovement = 1e-4;
+                        if (candidateFitness - bestFitness > MinImprovement)
+                        {
+                            bestGenes = candidate;
+                            bestFitness = candidateFitness;
+                            improved = true;
+                            _logger?.Debug($"\t   Improvement found! New fitness: {bestFitness:F4}");
+                            break; // passa al prossimo gene
+                        }
+                    }
+                }
+
+                if (!improved)
+                {
+                    _logger?.Debug("\tNo improvements found, end local search");
+                    break;
+                }
+            }
+
+            _logger?.Debug($"\tEnd - Improvement: {bestFitness - chromosome.Fitness:F4}");
+            return bestGenes;
         }
 
         private string FormatTimeElapsed(TimeSpan timeElapsed)

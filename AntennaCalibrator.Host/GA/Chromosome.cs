@@ -8,7 +8,7 @@ namespace AntennaCalibrator.GA
         public double? Fitness { get; set; }
         public Statistic? Statistic { get; set; }
 
-        private double[] genes;
+        private double[] _genes;
 
         private readonly int nGenes = 22;
         private readonly double _meanPCV;
@@ -26,6 +26,13 @@ namespace AntennaCalibrator.GA
             CreateGenes(nGenes);
         }
 
+        public Chromosome(double[] genes)
+        {
+            _genes = (double[])genes.Clone();
+            Fitness = null;
+            Id = Guid.NewGuid();
+        }
+
         public Chromosome CreateNew()
         {
             return new Chromosome(_meanPCV, _stdPCV, _PCO);
@@ -33,7 +40,7 @@ namespace AntennaCalibrator.GA
 
         private void CreateGenes(int nGenes)
         {
-            genes = new double[nGenes];
+            _genes = new double[nGenes];
 
             for (int i = 0; i < nGenes; i++)
                 ReplaceGene(i, GenerateGene(i));
@@ -63,8 +70,23 @@ namespace AntennaCalibrator.GA
                 throw new ArgumentOutOfRangeException(nameof(index), $"There is no Gene on index {index} to be replaced.");
             }
 
-            genes[index] = Math.Round(gene, 3);
+            _genes[index] = Math.Round(gene, 3);
             Fitness = null;
+        }
+
+        public void ReplaceGenes(int startIndex, double[] genes)
+        {
+            if (genes.Length > 0)
+            {
+                if (startIndex < 0 || startIndex >= nGenes)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(startIndex), $"There is no Gene on index {startIndex} to be replaced.");
+                }
+
+                Array.Copy(genes, 0, _genes, startIndex, Math.Min(genes.Length, nGenes - startIndex));
+
+                Fitness = null;
+            }
         }
 
         public double GetGene(int index)
@@ -74,12 +96,12 @@ namespace AntennaCalibrator.GA
                 throw new ArgumentOutOfRangeException(nameof(index), $"There is no Gene on index {index}.");
             }
 
-            return genes[index];
+            return _genes[index];
         }
 
         public IEnumerable<double> GetGenes()
         {
-            return genes;
+            return _genes;
         }
 
         public Chromosome Clone()
