@@ -30,7 +30,7 @@ namespace AntennaCalibrator.GA
                     double delta = Randomizer.NextSign() * Randomizer.SampleGaussian(0, _stdDev);
                     double newValue = genes[i] + delta;
 
-                    _logger?.Debug($"\t Mutazione su gene {i}: {genes[i]:F2} + {delta:F2} = {newValue:F2}");
+                    _logger?.Verbose($"\t Mutazione su gene {i}: {genes[i]:F2} + {delta:F2} = {newValue:F2}");
 
                     chromosome.ReplaceGene(i, newValue);
                 }

@@ -61,7 +61,7 @@ namespace AntennaCalibrator.GA
                     offspring1 = 0.5 * ((1 + beta) * g1 + (1 - beta) * g2);
                     offspring2 = 0.5 * ((1 - beta) * g1 + (1 + beta) * g2);
 
-                    _logger?.Debug($"\t Crossover su gene {i}: delta = [{Math.Abs(g1) - Math.Abs(offspring1):F2}; {Math.Abs(g2) - Math.Abs(offspring2):F2}]");
+                    _logger?.Verbose($"\t Crossover su gene {i}: delta = [{Math.Abs(g1) - Math.Abs(offspring1):F2}; {Math.Abs(g2) - Math.Abs(offspring2):F2}]");
                 }
 
                 // sostituisci i geni nei cromosomi figli

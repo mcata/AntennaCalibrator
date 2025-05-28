@@ -60,7 +60,7 @@ namespace AntennaCalibrator.GA
 
                 genTimer.Stop();
                 var timeElapsed = FormatTimeElapsed(genTimer.Elapsed);
-                _logger?.Verbose($"Generation {i + 1} ended. Time: {timeElapsed}");
+                _logger?.Information($"Generation {i + 1} ended. Time: {timeElapsed}");
 
                 var topChromosomes = _population.CurrentGeneration.Chromosomes
                     .OrderByDescending(c => c.Fitness)
@@ -103,7 +103,7 @@ namespace AntennaCalibrator.GA
 
             runTimer.Stop();
             var totalTime = FormatTimeElapsed(runTimer.Elapsed);
-            _logger?.Verbose($"Genetic Algorithm finished. Total time: {totalTime}");
+            _logger?.Information($"Genetic Algorithm finished. Total time: {totalTime}");
 
             var fitnessAcrossGeneration = _population.Generations
                 .Select(g => (double)g.Chromosomes.Max(c => c.Fitness)!)
@@ -123,7 +123,7 @@ namespace AntennaCalibrator.GA
 
             var candidateChromosomes = Reinsert([.. offspring]);
 
-            _logger?.Verbose($"\tPerforming clustering");
+            _logger?.Information($"\tPerforming clustering");
             var clusters = KMeansClustering.PerformCluster(candidateChromosomes, k: 5, threshold: 0.001);
             //var algClusters = AlglibClustering.KmeansClustering(candidateChromosomes.ToList(), k: 5, threshold: 0.1);
             var (survivors, nDrops) = RemoveDuplicates(clusters, candidateChromosomes);
@@ -152,7 +152,7 @@ namespace AntennaCalibrator.GA
             int completed = 0;
             int lastPercentage = -1;
 
-            _logger?.Verbose($"\tEvaluating fitness of {unevalutedChromosomes} chromosomes");
+            _logger?.Information($"\tEvaluating fitness of {unevalutedChromosomes} chromosomes");
 
             Parallel.ForEach(chromosomes, chromosome =>
             {
@@ -185,7 +185,7 @@ namespace AntennaCalibrator.GA
 
         private IEnumerable<Chromosome> SelectParents()
         {
-            _logger?.Verbose($"\tSelecting parents");
+            _logger?.Information($"\tSelecting parents");
             var chromosomes = _population.CurrentGeneration.Chromosomes.ToList();
             return new List<Chromosome>
             {
@@ -225,8 +225,8 @@ namespace AntennaCalibrator.GA
             distributionIndex = ηMin + ((ηMax - ηMin) * _population.CurrentGeneration.Number / (double)generations);
             #endregion
 
-            _logger?.Verbose($"\tPerforming crossover (p = {probability:F2}; eta = {distributionIndex:F1})");
-            _logger?.Debug($"\t Parents fitness: p1: {parents[0].Fitness:F4}, p2: {parents[1].Fitness:F4}");
+            _logger?.Information($"\tPerforming crossover (p = {probability:F2}; eta = {distributionIndex:F1})");
+            _logger?.Verbose($"\t Parents fitness: p1: {parents[0].Fitness:F4}, p2: {parents[1].Fitness:F4}");
             return _crossover.PerformCross(parents, probability, distributionIndex);
         }
 
@@ -252,7 +252,7 @@ namespace AntennaCalibrator.GA
 
             double probability = pmTemp * Math.Exp(_population.CurrentGeneration.Number / generations);
 
-            _logger?.Verbose($"\tPerforming mutation (p = {probability.ToString("0.00")})");
+            _logger?.Information($"\tPerforming mutation (p = {probability.ToString("0.00")})");
             foreach (var chromosome in chromosomes)
             {
                 _mutation.PerformMutate(chromosome, probability);
@@ -261,7 +261,7 @@ namespace AntennaCalibrator.GA
 
         private ConcurrentBag<Chromosome> Reinsert(ConcurrentBag<Chromosome> offspring)
         {
-            _logger?.Verbose("\tReinserting offspring");
+            _logger?.Information("\tReinserting offspring");
 
             EvaluateFitness(offspring);
 
@@ -273,7 +273,7 @@ namespace AntennaCalibrator.GA
 
             foreach (var child in offspring)
             {
-                _logger?.Debug($"\t Child fitness: {child.Fitness:F4}");
+                _logger?.Verbose($"\t Child fitness: {child.Fitness:F4}");
                 if ((double)child.Fitness! > fAvg || (double)child.Fitness! > fMin)
                 {
                     acceptedOffspring.Add(child);
@@ -317,12 +317,12 @@ namespace AntennaCalibrator.GA
             double stdDev = Math.Sqrt(fitnessValues.Average(v => Math.Pow(v - mean, 2)));
             double threshold = mean - stdDev;
 
-            _logger?.Debug($"\tFitness mean: {mean:F4}, std: {stdDev:F4}, threshold: {threshold:F4}");
+            _logger?.Verbose($"\tFitness mean: {mean:F4}, std: {stdDev:F4}, threshold: {threshold:F4}");
 
             // Crea lista aggiornata con rimozione dei peggiori
             var survivors = chromosomes.Where(c => (c.Fitness ?? 0) >= threshold).ToList();
             int replacementsNeeded = _population.Size - survivors.Count;
-            _logger?.Debug($"\tReplacing {replacementsNeeded} chromosomes");
+            _logger?.Verbose($"\tReplacing {replacementsNeeded} chromosomes");
 
             var baseChromosome = survivors.FirstOrDefault() ?? chromosomes.OrderByDescending(c => c.Fitness ?? 0).First();
             var newIndividuals = Enumerable
@@ -386,12 +386,12 @@ namespace AntennaCalibrator.GA
             double[] genes = chromosome.GetGenes().ToArray();
             double[] bestGenes = (double[])chromosome.GetGenes().ToArray().Clone();
             double bestFitness = (double)chromosome.Fitness!;
-            _logger?.Verbose($"[Coordinate descent] Initial fitness: {bestFitness:F4}");
+            _logger?.Information($"[Coordinate descent] Initial fitness: {bestFitness:F4}");
 
             for (int iter = 0; iter < maxIterations; iter++)
             {
                 bool improved = false;
-                _logger?.Debug($"\tIteration {iter + 1}");
+                _logger?.Verbose($"\tIteration {iter + 1}");
 
                 for (int i = 4; i < bestGenes.Length; i++)
                 {
@@ -401,7 +401,7 @@ namespace AntennaCalibrator.GA
                         candidate[i] += direction * step;
 
                         double candidateFitness = fitnessFunc(candidate);
-                        _logger?.Debug($"\t [Gene {i}] Direction {(direction > 0 ? "+" : "-")}");
+                        _logger?.Verbose($"\t [Gene {i}] Direction {(direction > 0 ? "+" : "-")}");
 
                         const double MinImprovement = 1e-4;
                         if (candidateFitness - bestFitness > MinImprovement)
@@ -409,7 +409,7 @@ namespace AntennaCalibrator.GA
                             bestGenes = candidate;
                             bestFitness = candidateFitness;
                             improved = true;
-                            _logger?.Debug($"\t   Improvement found! New fitness: {bestFitness:F4}");
+                            _logger?.Verbose($"\t   Improvement found! New fitness: {bestFitness:F4}");
                             break; // passa al prossimo gene
                         }
                     }
@@ -417,12 +417,12 @@ namespace AntennaCalibrator.GA
 
                 if (!improved)
                 {
-                    _logger?.Debug("\tNo improvements found, end local search");
+                    _logger?.Verbose("\tNo improvements found, end local search");
                     break;
                 }
             }
 
-            _logger?.Debug($"\tEnd - Improvement: {bestFitness - chromosome.Fitness:F4}");
+            _logger?.Verbose($"\tEnd - Improvement: {bestFitness - chromosome.Fitness:F4}");
             return bestGenes;
         }
 
