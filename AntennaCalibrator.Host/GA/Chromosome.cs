@@ -4,6 +4,7 @@ namespace AntennaCalibrator.GA
 {
     internal class Chromosome
     {
+        public Guid Id { get; }
         public double? Fitness { get; set; }
         public Statistic? Statistic { get; set; }
 
@@ -19,6 +20,8 @@ namespace AntennaCalibrator.GA
             _meanPCV = meanPCV;
             _stdPCV = stdPCV;
             _PCO = PCO;
+
+            Id = Guid.NewGuid();
 
             CreateGenes(nGenes);
         }
@@ -48,7 +51,8 @@ namespace AntennaCalibrator.GA
             }
             else
             {
-                return Randomizer.SampleGaussian(_meanPCV, _stdPCV);
+                var value = Randomizer.SampleGaussian(_meanPCV, _stdPCV);
+                return Math.Round(value, 3);
             }
         }
 
@@ -59,7 +63,7 @@ namespace AntennaCalibrator.GA
                 throw new ArgumentOutOfRangeException(nameof(index), $"There is no Gene on index {index} to be replaced.");
             }
 
-            genes[index] = gene;
+            genes[index] = Math.Round(gene, 3);
             Fitness = null;
         }
 

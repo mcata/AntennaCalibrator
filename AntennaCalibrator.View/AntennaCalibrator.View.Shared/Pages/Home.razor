@@ -34,7 +34,7 @@
         </div>
 
         <div class="col-span-12">
-            <Card Title="PCV trend" Description="Comparison of the best 5 chromosomes of each generation with actual values">
+            <Card Title="PCV trend" Description=@($"Comparison of the best {topChromosomes.Count - 1} chromosomes of each generation with actual values")>
                 <ChartContent>
                     <ChromosomePlot @ref="_chromosomePlot" Chromosomes="topChromosomes" />
                 </ChartContent>

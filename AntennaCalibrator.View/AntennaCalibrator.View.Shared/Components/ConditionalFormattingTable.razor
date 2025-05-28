@@ -20,7 +20,7 @@
                     {
                         var cellClass = GetCellClass(Data[row, column]);
                         <td class="border border-gray-300 px-3 py-2 text-center text-xs font-thin @cellClass">
-                            @Data[row, column].ToString("F3", CultureInfo.InvariantCulture)
+                            @Data[row, column].ToString("F2", CultureInfo.InvariantCulture)
                         </td>
                     }
                 </tr>

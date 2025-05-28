@@ -19,9 +19,7 @@ namespace AntennaCalibrator
                 return;
             }
 
-#if !DEBUG
             LaunchUI();
-#endif
 
             var population = new SteadyStatePopulation(config.PopulationSize, logger);
             population.CreateInitialGeneration(config.MeanStdValues.Mean, config.MeanStdValues.Std, config.StartValues.Values.Take(3).ToArray());
@@ -30,8 +28,8 @@ namespace AntennaCalibrator
                 population,
                 new Fitness(config, logger),
                 new RouletteWheelSelection(),
-                new SbxCrossover(config.Crossover.Probability, config.Crossover.DistributionIndex),
-                new GaussianMutation(config.Mutation.Probability, config.Mutation.Noise),
+                new SbxCrossover(config.Crossover.Probability, config.Crossover.DistributionIndex, logger),
+                new GaussianMutation(config.Mutation.Probability, config.Mutation.Noise, logger),
                 logger
             );
 

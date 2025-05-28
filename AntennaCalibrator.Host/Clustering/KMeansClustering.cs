@@ -38,7 +38,7 @@ namespace AntennaCalibrator.Clustering
             return cObj
                 .GroupBy(x => x.Id)
                 .Select(g => GetCluster(g, threshold))
-                .Where(x => x.Count() >= 5)
+                //.Where(x => x.Count() >= 5)
                 .ToList();
         }
 

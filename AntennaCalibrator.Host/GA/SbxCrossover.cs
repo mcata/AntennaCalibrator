@@ -1,9 +1,12 @@
 ﻿using AntennaCalibrator.Utilis;
+using Serilog;
 
 namespace AntennaCalibrator.GA
 {
     internal class SbxCrossover
     {
+        private readonly ILogger? _logger;
+
         /// <summary>
         /// Probabilità di applicare il crossover su una coppia di cromosomi.
         /// </summary>
@@ -14,10 +17,11 @@ namespace AntennaCalibrator.GA
         /// </summary>
         public double DistributionIndex { get; }
 
-        public SbxCrossover(double probability = 0.75, double distributionIndex = 20.0)
+        public SbxCrossover(double probability = 0.75, double distributionIndex = 20.0, ILogger? logger = null)
         {
             Probability = probability;
             DistributionIndex = distributionIndex;
+            _logger = logger;
         }
 
         public IEnumerable<Chromosome> PerformCross(IList<Chromosome> parents, double? probability = null, double? distributionIndex = null)
@@ -53,9 +57,11 @@ namespace AntennaCalibrator.GA
                         beta = Math.Pow(1.0 / (2.0 * (1.0 - u)), 1.0 / (_distributionIndex + 1.0));
                     }
 
-                    // genera i due figli
+                    // genera i due figli (se i genitori hanno geni molto simili i geni figli saranno uguali ai genitori)
                     offspring1 = 0.5 * ((1 + beta) * g1 + (1 - beta) * g2);
                     offspring2 = 0.5 * ((1 - beta) * g1 + (1 + beta) * g2);
+
+                    _logger?.Debug($"\t Crossover su gene {i}: delta = [{Math.Abs(g1) - Math.Abs(offspring1):F2}; {Math.Abs(g2) - Math.Abs(offspring2):F2}]");
                 }
 
                 // sostituisci i geni nei cromosomi figli

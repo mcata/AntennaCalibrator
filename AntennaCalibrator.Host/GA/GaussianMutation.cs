@@ -1,4 +1,5 @@
 ﻿using AntennaCalibrator.Utilis;
+using Serilog;
 
 namespace AntennaCalibrator.GA
 {
@@ -6,11 +7,13 @@ namespace AntennaCalibrator.GA
     {
         private readonly double _probability; // probabilità di mutazione
         private readonly double _stdDev;      // deviazione standard della gaussiana (in mm)
+        private readonly ILogger? _logger;
 
-        public GaussianMutation(double probability, double stdDev = 2.0)
+        public GaussianMutation(double probability, double stdDev = 2.0, ILogger? logger = null)
         {
             _probability = probability;
             _stdDev = stdDev;
+            _logger = logger;
         }
 
         public void PerformMutate(Chromosome chromosome, double? probability = null)
@@ -26,6 +29,8 @@ namespace AntennaCalibrator.GA
                     // perturbazione gaussiana centrata su 0 con deviazione _stdDev
                     double delta = Randomizer.NextSign() * Randomizer.SampleGaussian(0, _stdDev);
                     double newValue = genes[i] + delta;
+
+                    _logger?.Debug($"\t Mutazione su gene {i}: {genes[i]:F2} + {delta:F2} = {newValue:F2}");
 
                     chromosome.ReplaceGene(i, newValue);
                 }

@@ -1,6 +1,5 @@
 ﻿using AntennaCalibrator.View.Services;
 using AntennaCalibrator.View.Shared.Services;
-using Microsoft.Extensions.Logging;
 
 namespace AntennaCalibrator.View
 {

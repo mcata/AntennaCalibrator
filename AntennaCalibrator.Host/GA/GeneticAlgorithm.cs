@@ -117,9 +117,9 @@ namespace AntennaCalibrator.GA
             var candidateChromosomes = Reinsert([.. offspring]);
 
             _logger?.Verbose($"\tPerforming clustering");
-            var clusters = KMeansClustering.PerformCluster(candidateChromosomes, k: 5, threshold: 0.1);
-            var algClusters = AlglibClustering.KmeansClustering(candidateChromosomes.ToList(), k: 5, threshold: 0.1);
-            var (survivors, nDrops) = RemoveDuplicates(algClusters, candidateChromosomes);
+            var clusters = KMeansClustering.PerformCluster(candidateChromosomes, k: 5, threshold: 0.001);
+            //var algClusters = AlglibClustering.KmeansClustering(candidateChromosomes.ToList(), k: 5, threshold: 0.1);
+            var (survivors, nDrops) = RemoveDuplicates(clusters, candidateChromosomes);
 
             var nextGeneration = new ConcurrentBag<Chromosome>(survivors);
             for (int i = 0; i < nDrops; i++)
@@ -180,6 +180,7 @@ namespace AntennaCalibrator.GA
 
         private IEnumerable<Chromosome> Cross(IList<Chromosome> parents, int generations, double? distributionIndex = null)
         {
+            #region Adaptive probability
             const double pcLow = 0.6;
             const double pcHigh = 0.9;
 
@@ -199,8 +200,16 @@ namespace AntennaCalibrator.GA
             }
 
             double probability = pcTemp * Math.Exp(_population.CurrentGeneration.Number / generations);
+            #endregion
 
-            _logger?.Verbose($"\tPerforming crossover (p = {probability.ToString("0.00")})");
+            #region Adaptive η
+            const double ηMin = 2.0;
+            const double ηMax = 20.0;
+
+            distributionIndex = ηMin + ((ηMax - ηMin) * _population.CurrentGeneration.Number / (double)generations);
+            #endregion
+
+            _logger?.Verbose($"\tPerforming crossover (p = {probability:F2}; eta = {distributionIndex:F1})");
             _logger?.Debug($"\t Parents fitness: p1: {parents[0].Fitness:F4}, p2: {parents[1].Fitness:F4}");
             return _crossover.PerformCross(parents, probability, distributionIndex);
         }
@@ -320,7 +329,7 @@ namespace AntennaCalibrator.GA
                 foreach (var item in cluster)
                 {
                     var individues = population
-                                     .Where(x => (x.Fitness == item.Fitness) && (item.Fitness != bestFitness))
+                                     .Where(x => (x.Id == item.Chromosome.Id) && (item.Fitness != bestFitness))
                                      .ToList();
 
                     foreach (var individue in individues)

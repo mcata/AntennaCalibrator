@@ -7,12 +7,10 @@ namespace AntennaCalibrator.GA
     {
         private readonly ILogger? _logger;
 
-
         public int Size { get; }
         public Generation CurrentGeneration { get; private set; }
         public List<Generation> Generations { get; private set; } = [];
         public int GenerationNumber { get; private set; } = 0;
-
         public Chromosome BestChromosome { get; private set; }
 
         public SteadyStatePopulation(int size, ILogger? logger = null)
