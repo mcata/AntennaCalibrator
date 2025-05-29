@@ -19,7 +19,8 @@ namespace AntennaCalibrator
                 return;
             }
 
-            LaunchUI();
+            var pipeName = Guid.NewGuid().ToString("N");
+            LaunchUI(pipeName);
 
             var population = new SteadyStatePopulation(config.PopulationSize, logger);
             population.CreateInitialGeneration(config.MeanStdValues.Mean, config.MeanStdValues.Std, config.StartValues.Values.Take(3).ToArray());
@@ -33,14 +34,15 @@ namespace AntennaCalibrator
                 logger
             );
 
-            await ga.Run(config.Generation.Number, config.Generation.StagnantNumber, config.StartValues.Values);
+            await ga.Run(config.Generation.Number, config.Generation.StagnantNumber, config.StartValues.Values, pipeName);
         }
 
-        private static void LaunchUI()
+        private static void LaunchUI(string args)
         {
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = @".\Ancillary\sw\UI\AntennaCalibrator.View.exe",
+                Arguments = args,
                 UseShellExecute = true
             };
 

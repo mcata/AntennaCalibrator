@@ -28,7 +28,7 @@ namespace AntennaCalibrator.GA
             _logger = logger;
         }
 
-        public async Task Run(int generations, int? stagnantGenerationsNumber = null, List<double>? values = null)
+        public async Task Run(int generations, int? stagnantGenerationsNumber = null, List<double>? values = null, string pipeName = "ChromosomePipe")
         {
             _generations = generations;
 
@@ -37,7 +37,7 @@ namespace AntennaCalibrator.GA
 
             if (Directory.Exists(@".\temp")) Directory.Delete(@".\temp", true);
 
-            using var pipeService = new PipeSenderService();
+            using var pipeService = new PipeSenderService(pipeName);
 
             for (int i = 0; i < generations; i++)
             {

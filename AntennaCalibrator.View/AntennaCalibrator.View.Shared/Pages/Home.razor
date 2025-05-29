@@ -62,8 +62,11 @@
 
     protected override void OnInitialized()
     {
+        var args = Environment.GetCommandLineArgs();
+        var pipeName = args.Length > 1 ? args[1] : "ChromosomePipe";
+
         PipeService.DataReceived += OnDataReceived;
-        PipeService.StartListening();
+        PipeService.StartListening(pipeName);
     }
 
     private void OnDataReceived(object? sender, string data)

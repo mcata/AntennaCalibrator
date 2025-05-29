@@ -8,7 +8,7 @@ namespace AntennaCalibrator.View.Shared.Services
 
         private CancellationTokenSource? _cts;
 
-        public void StartListening()
+        public void StartListening(string pipeName = "ChromosomePipe")
         {
             _cts = new CancellationTokenSource();
 
@@ -16,7 +16,7 @@ namespace AntennaCalibrator.View.Shared.Services
             {
                 try
                 {
-                    var pipeClient = new NamedPipeClientStream(".", "ChromosomePipe", PipeDirection.In);
+                    var pipeClient = new NamedPipeClientStream(".", pipeName, PipeDirection.In);
                     pipeClient.Connect();
 
                     using (var reader = new StreamReader(pipeClient))
