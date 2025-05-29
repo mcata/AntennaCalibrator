@@ -28,8 +28,8 @@ namespace AntennaCalibrator
                 population,
                 new Fitness(config, logger),
                 new RouletteWheelSelection(),
-                new SbxCrossover(config.Crossover.Probability, config.Crossover.DistributionIndex, logger),
-                new GaussianMutation(config.Mutation.Probability, config.Mutation.Noise, logger),
+                new SbxCrossover(config.Crossover.Probability, config.Crossover.DistributionIndex),
+                new GaussianMutation(config.Mutation.Probability, config.Mutation.Noise),
                 logger
             );
 

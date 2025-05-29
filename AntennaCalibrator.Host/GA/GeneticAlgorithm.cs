@@ -177,9 +177,7 @@ namespace AntennaCalibrator.GA
         public double Evaluate(double[] genes)
         {
             var chromosome = new Chromosome(genes);
-            
             var (fitness, _) = _fitness.Evaluate(chromosome);
-
             return fitness;
         }
 
