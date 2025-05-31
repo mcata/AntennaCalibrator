@@ -38,6 +38,7 @@ namespace AntennaCalibrator.GA
             if (Directory.Exists(@".\temp")) Directory.Delete(@".\temp", true);
 
             using var pipeService = new PipeSenderService(pipeName);
+            var fitnessAcrossGenerations = new List<double>();
 
             for (int i = 0; i < generations; i++)
             {
@@ -55,6 +56,7 @@ namespace AntennaCalibrator.GA
                     EvaluateFitness(new ConcurrentBag<Chromosome> { _population.BestChromosome });
                 }
 
+                fitnessAcrossGenerations.Add((double)_population.BestChromosome.Fitness!);
                 _logger?.Information($"\tFitness of best Chromosome: {_population.BestChromosome.Fitness:F4} ({_population.BestChromosome.Statistic!.ToString()})");
                 FileManager.WriteBestChromosomePerGeneration($@".\temp\best_chromosomes.csv", _population.CurrentGeneration.Chromosomes, i + 1);
 
@@ -105,10 +107,7 @@ namespace AntennaCalibrator.GA
             var totalTime = FormatTimeElapsed(runTimer.Elapsed);
             _logger?.Information($"Genetic Algorithm finished. Total time: {totalTime}");
 
-            var fitnessAcrossGeneration = _population.Generations
-                .Select(g => (double)g.Chromosomes.Max(c => c.Fitness)!)
-                .ToList();
-            File.WriteAllLines(@".\temp\fitness.txt", fitnessAcrossGeneration.Select(f => f.ToString("0.00000")));
+            File.WriteAllLines(@".\temp\fitness.txt", fitnessAcrossGenerations.Select(f => f.ToString("0.00000")));
             ExternalTools.LaunchGraphMananger(@".\temp\fitness.txt");
         }
 
