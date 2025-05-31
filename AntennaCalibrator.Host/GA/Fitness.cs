@@ -59,13 +59,14 @@ namespace AntennaCalibrator.GA
                 var coordinates = FileManager.ReadCoordinatesFromFile($"{outputPath}");
                 var statistic = EvaluateCoordinates(coordinates);
 
-                double sumOfWeightedSquares = residuals.Sum(r =>
+                var validResiduals = residuals.Where(r => r.ValidDataFlag == 1 && r.Q == 2);
+                double sumOfWeightedSquares = validResiduals.Sum(r =>
                 {
                     double weight = Math.Pow(Math.Sin(r.Elevation * Math.PI / 180.0), 2); // peso = sin²(e)
                     return weight * Math.Pow(r.Value, 2);
                 });
 
-                double totalWeight = residuals.Sum(r =>
+                double totalWeight = validResiduals.Sum(r =>
                     Math.Pow(Math.Sin(r.Elevation * Math.PI / 180.0), 2));
 
                 double weightedRMSE = Math.Sqrt(sumOfWeightedSquares / totalWeight);
@@ -90,10 +91,10 @@ namespace AntennaCalibrator.GA
 
         private Statistic? EvaluateCoordinates(List<Coordinate> coordinates)
         {
-            var filtered = coordinates.Where(p => p.Q == 1).ToList();
+            var filtered = coordinates.Where(p => p.Q == 2).ToList();
             if (!filtered.Any())
             {
-                _logger?.Warning("\tNo valid positions with Q == 1.");
+                _logger?.Warning("\tNo valid positions with Q == 2");
                 return null;
             }
 

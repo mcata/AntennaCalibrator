@@ -78,7 +78,6 @@ namespace AntennaCalibrator.GA
                     })
                     .ToList();
 
-
                 if (values != null)
                 {
                     topChromosomesList.Insert(0, new GenerationChromosome

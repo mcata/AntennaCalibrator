@@ -56,8 +56,10 @@ namespace AntennaCalibrator.Utilis
                             {
                                 residues.Add(new Residue
                                 {
+                                    Azimuth = double.Parse(tokens[5], CultureInfo.InvariantCulture),
                                     Elevation = double.Parse(tokens[6], CultureInfo.InvariantCulture),
                                     Value = double.Parse(tokens[8], CultureInfo.InvariantCulture),
+                                    ValidDataFlag = int.Parse(tokens[9]),
                                     Q = int.Parse(tokens[11])
                                 });
                             }
