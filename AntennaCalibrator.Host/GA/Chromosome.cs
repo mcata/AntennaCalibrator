@@ -43,24 +43,44 @@ namespace AntennaCalibrator.GA
             _genes = new double[nGenes];
 
             for (int i = 0; i < nGenes; i++)
-                ReplaceGene(i, GenerateGene(i));
+                ReplaceGene(i, GenerateConstrainedGene(i));
+        }
+
+        private double GenerateConstrainedGene(int geneIndex)
+        {
+            if (geneIndex < 3)
+                return _PCO[geneIndex];
+
+            if (geneIndex == 3)
+                return 0.0;
+
+            double previousGene = _genes[geneIndex - 1];
+            double lowerBound = previousGene - 1.0;
+            double upperBound = previousGene + 1.0;
+
+            double newGeneCandidate;
+
+            // Genera un nuovo gene che rispetti il vincolo |gene_i - gene_{i-1}| <= 1
+            do
+            {
+                newGeneCandidate = Math.Round(Randomizer.SampleGaussian(_meanPCV, _stdPCV), 3);
+            } 
+            while (newGeneCandidate < lowerBound || newGeneCandidate > upperBound);
+
+            return newGeneCandidate;
         }
 
         private double GenerateGene(int geneIndex)
         {
             if (geneIndex < 3)
-            {
                 return _PCO[geneIndex];
-            }
-            else if (geneIndex == 3)
-            {
+
+            if (geneIndex == 3)
                 return 0.0;
-            }
-            else
-            {
-                var value = Randomizer.SampleGaussian(_meanPCV, _stdPCV);
-                return Math.Round(value, 3);
-            }
+
+            var value = Randomizer.SampleGaussian(_meanPCV, _stdPCV);
+            return Math.Round(value, 3);
+
         }
 
         public void ReplaceGene(int index, double gene)
