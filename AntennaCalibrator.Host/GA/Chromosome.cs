@@ -55,9 +55,6 @@ namespace AntennaCalibrator.GA
                 return 0.0;
 
             double previousGene = _genes[geneIndex - 1];
-            double lowerBound = previousGene - 1.0;
-            double upperBound = previousGene + 1.0;
-
             double newGeneCandidate;
 
             // Genera un nuovo gene che rispetti il vincolo |gene_i - gene_{i-1}| <= 1
@@ -65,7 +62,7 @@ namespace AntennaCalibrator.GA
             {
                 newGeneCandidate = Math.Round(Randomizer.SampleGaussian(_meanPCV, _stdPCV), 3);
             } 
-            while (newGeneCandidate < lowerBound || newGeneCandidate > upperBound);
+            while (Math.Abs(newGeneCandidate - previousGene) > 1.0) ;
 
             return newGeneCandidate;
         }

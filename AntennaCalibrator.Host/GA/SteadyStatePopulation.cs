@@ -24,13 +24,18 @@ namespace AntennaCalibrator.GA
             }
         }
 
-        public void CreateInitialGeneration(double meanPCV, double stdPCV, double[] PCO)
+        public void CreateInitialGeneration(double meanPCV, double stdPCV, double[] PCO, bool addRealPcv = false)
         {
             var chromosomes = new ConcurrentBag<Chromosome>();
             for (int i = 0; i < Size; i++)
             {
                 var chromosome = new Chromosome(meanPCV, stdPCV, PCO);
                 chromosomes.Add(chromosome);
+            }
+
+            if (addRealPcv)
+            {
+                chromosomes.First().ReplaceGenes(0, PCO);
             }
 
             CreateNewGeneration(chromosomes);

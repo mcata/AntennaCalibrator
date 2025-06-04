@@ -23,7 +23,8 @@ namespace AntennaCalibrator
             LaunchUI(pipeName);
 
             var population = new SteadyStatePopulation(config.PopulationSize, logger);
-            population.CreateInitialGeneration(config.MeanStdValues.Mean, config.MeanStdValues.Std, config.StartValues.Values.Take(3).ToArray());
+            population.CreateInitialGeneration(config.MeanStdValues.Mean, config.MeanStdValues.Std, config.StartValues.Values.ToArray(), true);
+            //population.CreateInitialGeneration(config.MeanStdValues.Mean, config.MeanStdValues.Std, config.StartValues.Values.Take(3).ToArray());
 
             var ga = new GeneticAlgorithm(
                 population,
