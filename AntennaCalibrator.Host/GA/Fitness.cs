@@ -10,6 +10,29 @@ namespace AntennaCalibrator.GA
 
         private const double _epsilon = 1e-6;
 
+        private readonly List<(double min, double max)> _elevationBands = new List<(double min, double max)>
+        {
+            (0, 2.5),
+            (2.5, 7.5),
+            (7.6, 12.5),
+            (12.6, 17.5),
+            (17.6, 22.5),
+            (22.6, 27.5),
+            (27.6, 32.5),
+            (32.6, 37.5),
+            (37.6, 42.5),
+            (42.6, 47.5),
+            (47.6, 52.5),
+            (52.6, 57.5),
+            (57.6, 62.5),
+            (62.6, 67.5),
+            (67.6, 72.5),
+            (72.6, 77.5),
+            (77.6, 82.5),
+            (82.6, 87.5),
+            (87.6, 90.0)
+        };
+
         public Fitness(Configuration configuration, ILogger? logger = null)
         {
             _configuration = configuration;
@@ -28,7 +51,6 @@ namespace AntennaCalibrator.GA
 
             try
             {
-                // Preparazione file di configurazione
                 var configSource = @".\ancillary\config";
                 var configPath = Path.Combine(tempDir, "rnx2rtkp.conf");
                 var antexPath = Path.Combine(tempDir, "satellites.atx");
@@ -59,19 +81,29 @@ namespace AntennaCalibrator.GA
                 var coordinates = FileManager.ReadCoordinatesFromFile($"{outputPath}");
                 var statistic = EvaluateCoordinates(coordinates);
 
-                var validResiduals = residuals.Where(r => r.ValidDataFlag == 1 && r.Q == 2);
-                double sumOfWeightedSquares = validResiduals.Sum(r =>
+                var validResiduals = residuals
+                    .Where(r => r.ValidDataFlag == 1 && r.Q == 2)
+                    .OrderBy(r => r.Elevation);
+
+                var rmseList = new List<double>();
+
+                foreach (var band in _elevationBands)
                 {
-                    double weight = Math.Pow(Math.Sin(r.Elevation * Math.PI / 180.0), 2); // peso = sin²(e)
-                    return weight * Math.Pow(r.Value, 2);
-                });
+                    var bandResiduals = validResiduals
+                        .Where(r => r.Elevation >= band.min && r.Elevation <= band.max)
+                        .Select(r => r.Value)
+                        .ToList();
 
-                double totalWeight = validResiduals.Sum(r =>
-                    Math.Pow(Math.Sin(r.Elevation * Math.PI / 180.0), 2));
+                    if (bandResiduals.Count > 0)
+                    {
+                        double mse = bandResiduals.Sum(r => r * r) / bandResiduals.Count;
+                        rmseList.Add(Math.Sqrt(mse));
+                    }
+                }
 
-                double weightedRMSE = Math.Sqrt(sumOfWeightedSquares / totalWeight);
+                double meanRMSE = rmseList.Count > 0 ? rmseList.Average() : double.MaxValue;
 
-                double fitness = 1.0 / (weightedRMSE + _epsilon);
+                double fitness = 1.0 / (meanRMSE + _epsilon);
 
                 return (fitness, statistic);
             }
@@ -91,10 +123,10 @@ namespace AntennaCalibrator.GA
 
         private Statistic? EvaluateCoordinates(List<Coordinate> coordinates)
         {
-            var filtered = coordinates.Where(p => p.Q == 2).ToList();
+            var filtered = coordinates.Where(p => p.Q == 1).ToList();
             if (!filtered.Any())
             {
-                _logger?.Warning("\tNo valid positions with Q == 2");
+                _logger?.Warning("\tNo valid positions with Q == 1");
                 return null;
             }
 

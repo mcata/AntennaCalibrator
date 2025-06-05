@@ -40,9 +40,13 @@ namespace AntennaCalibrator
 
         private static void LaunchUI(string args)
         {
+            var uiPath = @".\Ancillary\sw\UI\AntennaCalibrator.View.exe";
+
+            if (!File.Exists(uiPath)) return;
+
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = @".\Ancillary\sw\UI\AntennaCalibrator.View.exe",
+                FileName = uiPath,
                 Arguments = args,
                 UseShellExecute = true
             };
