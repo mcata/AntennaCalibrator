@@ -6,25 +6,36 @@ namespace AntennaCalibrator.GA
     {
         public Chromosome PerformSelection(IList<Chromosome> population)
         {
-            double totalFitness = (double)population.Sum(c => c.Fitness)!;
+            var fitnessValues = population.Select(c => c.Fitness!.Value).ToList();
+            double minFitness = fitnessValues.Min();
+            double maxFitness = fitnessValues.Max();
 
-            if (totalFitness == 0)
+            double fitnessRange = maxFitness - minFitness;
+            if (fitnessRange == 0)
             {
-                // Tutti hanno fitness zero → selezione casuale
+                // Tutti hanno fitness uguale → selezione casuale
                 Random fallbackRandom = new Random();
-                return population[fallbackRandom.Next(population.Count())];
+                return population[fallbackRandom.Next(population.Count)];
             }
 
-            // Genera un numero casuale nell'intervallo [0, totalFitness]
-            double pick = Randomizer.NextDouble(0, totalFitness);
+            // Normalizza la fitness tra 0 e 1
+            var normalizedFitnesses = fitnessValues
+                .Select(f => (f - minFitness) / fitnessRange)
+                .ToList();
+
+            // Somma totale della fitness normalizzata
+            double totalNormalizedFitness = normalizedFitnesses.Sum();
+
+            // Numero casuale nell'intervallo [0, totalNormalizedFitness]
+            double pick = Randomizer.NextDouble(0, totalNormalizedFitness);
 
             double cumulative = 0.0;
-            foreach (var individual in population)
+            for (int i = 0; i < population.Count; i++)
             {
-                cumulative += (double)individual.Fitness!;
+                cumulative += normalizedFitnesses[i];
                 if (pick <= cumulative)
                 {
-                    return individual;
+                    return population[i];
                 }
             }
 

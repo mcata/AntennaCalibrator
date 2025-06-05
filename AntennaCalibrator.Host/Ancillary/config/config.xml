@@ -3,69 +3,63 @@
 		<Number>50</Number>
 		<StagnantNumber>10</StagnantNumber>
 	</Generation>
-	<PopulationSize>5</PopulationSize>
+	<PopulationSize>100</PopulationSize>
 	<Crossover>
 		<Probability>0.8</Probability>
 		<DistributionIndex>10</DistributionIndex>
 	</Crossover>
 	<Mutation>
 		<Probability>0.05</Probability>
-		<Noise>1</Noise>
+		<Noise>0.5</Noise>
 	</Mutation>
 	<RoverRinex>
-		<File>.\data\G31400ITA\G31400ITA_R_20231080000_01D_30S_MO.rnx</File>
-		<File>.\data\G31400ITA\G31400ITA_R_20231090000_01D_30S_MO.rnx</File>
+		<File>.\data\MATE00ITA\MATE00ITA_R_20250800000_01D_30S_MO.rnx</File>
 	</RoverRinex>
 	<ReferenceRinex>
-		<File>.\data\G32200ITA\G32200ITA_R_20231080000_01D_30S_MO.rnx</File>
-		<File>.\data\G32200ITA\G32200ITA_R_20231090000_01D_30S_MO.rnx</File>
+		<File>.\data\MAT100ITA\MAT100ITA_R_20250800000_01D_30S_MO.rnx</File>
 	</ReferenceRinex>
 	<NavigationRinex>
-		<File>.\data\nav\BRDC00WRD_R_20231080000_01D_MN.rnx</File>
-		<File>.\data\nav\BRDC00WRD_R_20231090000_01D_MN.rnx</File>
+		<File>.\data\nav\BRDC00WRD_R_20250800000_01D_MN.rnx</File>
 	</NavigationRinex>
 	<Sp3File>
-		<File>.\data\eph\IGS0OPSRAP_20231080000_01D_15M_ORB.SP3</File>
-		<File>.\data\eph\IGS0OPSRAP_20231090000_01D_15M_ORB.SP3</File>
+		<File>.\data\eph\IGS0OPSFIN_20250800000_01D_15M_ORB.SP3</File>
 	</Sp3File>
 	<ErpFile>
-		<File>.\data\eph\IGS0OPSRAP_20231080000_01D_01D_ERP.ERP</File>
-		<File>.\data\eph\IGS0OPSRAP_20231090000_01D_01D_ERP.ERP</File>
+		<File>.\data\eph\IGS0OPSRAP_20250800000_01D_01D_ERP.ERP</File>
 	</ErpFile>
 	<ReferencePosition>
-		<X>4444692.8641</X>
-		<Y>714664.1971</Y>
-		<Z>4503302.7810</Z>
+		<X>4641951.7049</X>
+		<Y>1393053.3980</Y>
+		<Z>4133280.6780</Z>
 	</ReferencePosition>
-	<RoverAntenna>TWIVSP6037L_T</RoverAntenna>
-	<ReferenceAntenna>TWIVSP6037L</ReferenceAntenna>
+	<RoverAntenna>LEIAR20_C</RoverAntenna>
+	<ReferenceAntenna>LEIAR20</ReferenceAntenna>
 	<MeanStdValues>
 		<Mean>0</Mean>
 		<Std>2.5</Std>
 	</MeanStdValues>
 	<StartValues>
-		<Value>0.35</Value>
-		<Value>-0.70</Value>
-		<Value>48.82</Value>
+		<Value>0.49</Value>
+		<Value>0.12</Value>
+		<Value>122.25</Value>
 		<Value>0.00</Value>
-		<Value>-0.10</Value>
-		<Value>-0.35</Value>
-		<Value>-0.64</Value>
-		<Value>-0.85</Value>
-		<Value>-0.88</Value>
-		<Value>-0.73</Value>
-		<Value>-0.50</Value>
-		<Value>-0.32</Value>
-		<Value>-0.34</Value>
-		<Value>-0.63</Value>
-		<Value>-1.08</Value>
-		<Value>-1.48</Value>
-		<Value>-1.57</Value>
-		<Value>-1.14</Value>
-		<Value>-0.19</Value>
-		<Value>1.00</Value>
-		<Value>1.93</Value>
-		<Value>2.02</Value>
+		<Value>-0.07</Value>
+		<Value>-0.29</Value>
+		<Value>-0.67</Value>
+		<Value>-1.21</Value>
+		<Value>-1.88</Value>
+		<Value>-2.59</Value>
+		<Value>-3.26</Value>
+		<Value>-3.80</Value>
+		<Value>-4.15</Value>
+		<Value>-4.28</Value>
+		<Value>-4.17</Value>
+		<Value>-3.80</Value>
+		<Value>-3.07</Value>
+		<Value>-1.87</Value>
+		<Value>-0.08</Value>
+		<Value>2.31</Value>
+		<Value>5.17</Value>
+		<Value>8.13</Value>
 	</StartValues>
-
 </Configuration>

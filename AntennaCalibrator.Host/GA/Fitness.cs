@@ -33,10 +33,14 @@ namespace AntennaCalibrator.GA
             (87.6, 90.0)
         };
 
+        private double _factor = 0.0;
+
         public Fitness(Configuration configuration, ILogger? logger = null)
         {
             _configuration = configuration;
             _logger = logger;
+
+            CalculateFactor(_configuration.StartValues.Values.Take(3).ToArray());
         }
 
         public (double fitness, Statistic? statistic) Evaluate(Chromosome chromosome)
@@ -99,11 +103,15 @@ namespace AntennaCalibrator.GA
                         double mse = bandResiduals.Sum(r => r * r) / bandResiduals.Count;
                         rmseList.Add(Math.Sqrt(mse));
                     }
+                    else { rmseList.Add(0); }
                 }
 
                 double meanRMSE = rmseList.Count > 0 ? rmseList.Average() : double.MaxValue;
 
                 double fitness = 1.0 / (meanRMSE + _epsilon);
+
+                var scaledFitness = fitness - _factor;
+                fitness = scaledFitness;
 
                 return (fitness, statistic);
             }
@@ -149,5 +157,19 @@ namespace AntennaCalibrator.GA
             };
         }
 
+        private void CalculateFactor(double[] pco)
+        {
+            var pcv = new List<double>();
+            for (int i = 0; i < 19; i++)
+            {
+                double value = Randomizer.NextDouble(0, 5);
+                pcv.Add(50 * value);
+            }
+
+            var genes = pco.Concat(pcv).ToArray();
+            var chromosome = new Chromosome(genes);
+            var result = Evaluate(chromosome);
+            _factor = result.fitness;
+        }
     }
 }

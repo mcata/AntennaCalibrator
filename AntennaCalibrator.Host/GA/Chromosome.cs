@@ -57,12 +57,12 @@ namespace AntennaCalibrator.GA
             double previousGene = _genes[geneIndex - 1];
             double newGeneCandidate;
 
-            // Genera un nuovo gene che rispetti il vincolo |gene_i - gene_{i-1}| <= 1
+            // Genera un nuovo gene che rispetti il vincolo |gene_i - gene_{i-1}| <= 1.5
             do
             {
                 newGeneCandidate = Math.Round(Randomizer.SampleGaussian(_meanPCV, _stdPCV), 3);
             } 
-            while (Math.Abs(newGeneCandidate - previousGene) > 1.0) ;
+            while (Math.Abs(newGeneCandidate - previousGene) > 1.5) ;
 
             return newGeneCandidate;
         }
