@@ -109,12 +109,10 @@ namespace AntennaCalibrator.GA
                 double meanRMSE = rmseList.Count > 0 ? rmseList.Average() : double.MaxValue;
                 double std = Math.Sqrt(statistic.StandardDev.Sum(v => v * v));
 
-                //double ratio = std / (meanRMSE + _epsilon);
-                //double scalingFactor = 1.0 / (ratio + 1.0); // Calcolo un peso dinamico per compensare la differenza di scala [0; 1]
-                //double fitnessRaw = 0.3 * meanRMSE + 0.7 * (scalingFactor * std); // Se std è 100 volte meanRMSE, scalingFactor sarà ≈ 0.01
-                //double fitness = 1.0 / (fitnessRaw + _epsilon);
+                double fitnessRes = 1.0 / (meanRMSE + _epsilon);
+                double fitnessStd = 1.0 / (std + _epsilon) * 100.0;
 
-                double fitness = 1.0 / (meanRMSE + _epsilon);
+                double fitness = 0.2 * fitnessRes + 0.8 * fitnessStd;
 
                 var scaledFitness = fitness - _factor;
                 fitness = scaledFitness;
