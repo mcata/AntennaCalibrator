@@ -61,8 +61,8 @@ namespace AntennaCalibrator.GA
             do
             {
                 newGeneCandidate = Math.Round(Randomizer.SampleGaussian(_meanPCV, _stdPCV), 3);
-            } 
-            while (Math.Abs(newGeneCandidate - previousGene) > 1.5) ;
+            }
+            while (Math.Abs(newGeneCandidate - previousGene) > 1.5);
 
             return newGeneCandidate;
         }

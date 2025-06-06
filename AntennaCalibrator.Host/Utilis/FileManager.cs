@@ -164,7 +164,7 @@ namespace AntennaCalibrator.Utilis
             var culture = CultureInfo.InvariantCulture;
 
             // Intestazione CSV
-            var header = new List<string> { "Index", "Fitness" };
+            var header = new List<string> { "Index", "Fitness", "STD_x", "STD_y", "STD_z" };
             header.AddRange(Enumerable.Range(0, 22).Select(i => $"Gene{i + 1}"));
             sb.AppendLine(string.Join(separator, header));
 
@@ -175,7 +175,10 @@ namespace AntennaCalibrator.Utilis
                 var row = new List<string>
                 {
                     i.ToString(),
-                    ((double)chromosome.Fitness!).ToString("0.000000", culture)
+                    ((double)chromosome.Fitness!).ToString("0.000000", culture),
+                    chromosome.Statistic!.StandardDev[0].ToString("0.000000", culture),
+                    chromosome.Statistic!.StandardDev[1].ToString("0.000000", culture),
+                    chromosome.Statistic!.StandardDev[2].ToString("0.000000", culture)
                 };
 
                 row.AddRange(chromosome.GetGenes().Select(g =>

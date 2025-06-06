@@ -74,7 +74,7 @@ namespace AntennaCalibrator.GA
                     _configuration.ErpFile.Files.First());
 
                 ExternalTools.ExecuteRTKLIB(
-                    configPath,
+                    Path.GetFullPath(configPath),
                     _configuration.RoverRinex.Files.First(),
                     _configuration.ReferenceRinex.Files.First(),
                     _configuration.NavigationRinex.Files.First(),
@@ -107,6 +107,12 @@ namespace AntennaCalibrator.GA
                 }
 
                 double meanRMSE = rmseList.Count > 0 ? rmseList.Average() : double.MaxValue;
+                double std = Math.Sqrt(statistic.StandardDev.Sum(v => v * v));
+
+                //double ratio = std / (meanRMSE + _epsilon);
+                //double scalingFactor = 1.0 / (ratio + 1.0); // Calcolo un peso dinamico per compensare la differenza di scala [0; 1]
+                //double fitnessRaw = 0.3 * meanRMSE + 0.7 * (scalingFactor * std); // Se std è 100 volte meanRMSE, scalingFactor sarà ≈ 0.01
+                //double fitness = 1.0 / (fitnessRaw + _epsilon);
 
                 double fitness = 1.0 / (meanRMSE + _epsilon);
 
@@ -146,9 +152,9 @@ namespace AntennaCalibrator.GA
             double avgY = yp.Average();
             double avgZ = zp.Average();
 
-            double stdX = Math.Sqrt(xp.Average(x => Math.Pow(x - avgX, 2)));
-            double stdY = Math.Sqrt(yp.Average(y => Math.Pow(y - avgY, 2)));
-            double stdZ = Math.Sqrt(zp.Average(z => Math.Pow(z - avgZ, 2)));
+            double stdX = Math.Sqrt(xp.Average(x => Math.Pow(x - avgX, 2))) * 1000;
+            double stdY = Math.Sqrt(yp.Average(y => Math.Pow(y - avgY, 2))) * 1000;
+            double stdZ = Math.Sqrt(zp.Average(z => Math.Pow(z - avgZ, 2))) * 1000;
 
             return new Statistic()
             {

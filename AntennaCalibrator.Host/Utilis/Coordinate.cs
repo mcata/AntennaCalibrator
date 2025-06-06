@@ -16,8 +16,8 @@
         public string ToString(bool writeCoordinate = false)
         {
             return writeCoordinate
-                ? $"coordinate: avg = [{Average[0]:F4}, {Average[1]:F4}, {Average[2]:F4}]; std = [{StandardDev[0]:F4}, {StandardDev[1]:F4}, {StandardDev[1]:F4}]"
-                : $"coordinate: std = [{StandardDev[0]:F4}, {StandardDev[1]:F4}, {StandardDev[1]:F4}]";
+                ? $"coordinate: avg = [{Average[0]:F4}, {Average[1]:F4}, {Average[2]:F4}]; std = [{StandardDev[0]:F4}, {StandardDev[1]:F4}, {StandardDev[2]:F4}]"
+                : $"coordinate: std = [{StandardDev[0]:F4}, {StandardDev[1]:F4}, {StandardDev[2]:F4}]";
         }
     }
 }
