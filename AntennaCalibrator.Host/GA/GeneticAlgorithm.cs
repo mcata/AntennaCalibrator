@@ -122,7 +122,7 @@ namespace AntennaCalibrator.GA
             var candidateChromosomes = Reinsert([.. offspring]);
 
             _logger?.Information($"\tPerforming clustering");
-            var clusters = KMeansClustering.PerformCluster(candidateChromosomes, k: 5, threshold: 0.001);
+            var clusters = KMeansClustering.PerformCluster(candidateChromosomes);
             //var algClusters = AlglibClustering.KmeansClustering(candidateChromosomes.ToList(), k: 5, threshold: 0.1);
             var (survivors, nDrops) = RemoveDuplicates(clusters, candidateChromosomes);
 
@@ -216,13 +216,13 @@ namespace AntennaCalibrator.GA
             #endregion
 
             #region Adaptive η
-            const double ηMin = 2.0;
-            const double ηMax = 20.0;
+            const double etaMin = 2.0;
+            const double etaMax = 20.0;
 
-            distributionIndex = ηMin + ((ηMax - ηMin) * _population.CurrentGeneration.Number / (double)generations);
+            distributionIndex = etaMin + ((etaMax - etaMin) * _population.CurrentGeneration.Number / (double)generations);
             #endregion
 
-            _logger?.Information($"\tPerforming crossover (p = {probability:F2}; eta = {distributionIndex:F1})");
+            _logger?.Information($"\tPerforming crossover (p = {probability:F2}; η = {distributionIndex:F1})");
             _logger?.Verbose($"\t Parents fitness: p1: {parents[0].Fitness:F4}, p2: {parents[1].Fitness:F4}");
             return _crossover.PerformCross(parents, probability, distributionIndex);
         }

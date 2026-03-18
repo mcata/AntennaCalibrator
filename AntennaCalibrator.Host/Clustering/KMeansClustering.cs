@@ -3,9 +3,13 @@ using AntennaCalibrator.GA;
 
 namespace AntennaCalibrator.Clustering
 {
-    internal class KMeansClustering
+    internal static class KMeansClustering
     {
-        public static IEnumerable<IEnumerable<Cluster>> PerformCluster(IEnumerable<Chromosome> population, int k, double threshold)
+        public static int k { get; set; } = 5;
+        public static int MinSimilarGenesThreshold { get; set; } = 13;
+        public static double GeneDifferenceThreshold { get; set; } = 0.001;
+
+        public static IEnumerable<IEnumerable<Cluster>> PerformCluster(IEnumerable<Chromosome> population)
         {
             double[][] data = population
                 .Select(c => c.GetGenes().ToArray())
@@ -37,12 +41,12 @@ namespace AntennaCalibrator.Clustering
 
             return cObj
                 .GroupBy(x => x.Id)
-                .Select(g => GetCluster(g, threshold))
+                .Select(g => GetCluster(g))
                 //.Where(x => x.Count() >= 5)
                 .ToList();
         }
 
-        private static IEnumerable<Cluster> GetCluster(IEnumerable<Cluster> cluster, double threshold)
+        private static IEnumerable<Cluster> GetCluster(IEnumerable<Cluster> cluster)
         {
             var best = cluster.OrderByDescending(x => x.Fitness).First();
             var result = new List<Cluster>();
@@ -55,9 +59,9 @@ namespace AntennaCalibrator.Clustering
 
                 var count = bestGenes
                     .Zip(item.Chromosome.GetGenes(), (a, b) => Math.Abs(a - b))
-                    .Count(d => d < threshold);
+                    .Count(d => d < MinSimilarGenesThreshold);
 
-                if (count > 13)
+                if (count > MinSimilarGenesThreshold)
                     result.Add(item);
             }
 
