@@ -31,13 +31,19 @@ namespace AntennaCalibrator.Utilis
             File.WriteAllLines(path, content);
         }
 
-        public static List<Residue> ReadResidualsFromFile(string path)
+        public static List<Residue> ReadResidualsFromFile(string path, int maxAttempts = 20, int delayMs = 250)
         {
-            const int delayMs = 2500;
-
-            while (IsFileLocked(path))
+            // Attende che il file sia disponibile con timeout massimo (maxAttempts * delayMs)
+            int attempts = 0;
+            while (IsFileLocked(path) && attempts < maxAttempts)
             {
                 Thread.Sleep(delayMs);
+                attempts++;
+            }
+
+            if (attempts >= maxAttempts)
+            {
+                throw new IOException($"Timeout: impossibile accedere al file '{path}' dopo {maxAttempts} tentativi ({maxAttempts * delayMs}ms).");
             }
 
             using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -73,13 +79,19 @@ namespace AntennaCalibrator.Utilis
             throw new IOException($"Impossibile leggere il file '{path}'.");
         }
 
-        public static List<Coordinate> ReadCoordinatesFromFile(string path)
+        public static List<Coordinate> ReadCoordinatesFromFile(string path, int maxAttempts = 20, int delayMs = 250)
         {
-            const int delayMs = 2500;
-
-            while (IsFileLocked(path))
+            // Attende che il file sia disponibile con timeout massimo (maxAttempts * delayMs)
+            int attempts = 0;
+            while (IsFileLocked(path) && attempts < maxAttempts)
             {
                 Thread.Sleep(delayMs);
+                attempts++;
+            }
+
+            if (attempts >= maxAttempts)
+            {
+                throw new IOException($"Timeout: impossibile accedere al file '{path}' dopo {maxAttempts} tentativi ({maxAttempts * delayMs}ms).");
             }
 
             using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))

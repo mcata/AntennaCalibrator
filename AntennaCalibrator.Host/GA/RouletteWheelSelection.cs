@@ -13,9 +13,9 @@ namespace AntennaCalibrator.GA
             double fitnessRange = maxFitness - minFitness;
             if (fitnessRange == 0)
             {
-                // Tutti hanno fitness uguale → selezione casuale
-                Random fallbackRandom = new Random();
-                return population[fallbackRandom.Next(population.Count)];
+                // Tutti hanno fitness uguale → selezione casuale uniforme
+                int randomIndex = Randomizer.NextInt(population.Count);
+                return population[randomIndex];
             }
 
             // Normalizza la fitness tra 0 e 1

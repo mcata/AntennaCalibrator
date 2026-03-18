@@ -211,7 +211,8 @@ namespace AntennaCalibrator.GA
                     : pcHigh;
             }
 
-            double probability = pcTemp * Math.Exp(_population.CurrentGeneration.Number / generations);
+            double probability = pcTemp * Math.Exp(_population.CurrentGeneration.Number / (double)generations);
+            probability = Math.Clamp(probability, pcLow, pcHigh);
             #endregion
 
             #region Adaptive η
@@ -246,9 +247,10 @@ namespace AntennaCalibrator.GA
                     : pmHigh;
             }
 
-            double probability = pmTemp * Math.Exp(_population.CurrentGeneration.Number / generations);
+            double probability = pmTemp * Math.Exp(_population.CurrentGeneration.Number / (double)generations);
+            probability = Math.Clamp(probability, pmLow, pmHigh);
 
-            _logger?.Information($"\tPerforming mutation (p = {probability.ToString("0.00")})");
+            _logger?.Information($"\tPerforming mutation (p = {probability:F2})");
             foreach (var chromosome in chromosomes)
             {
                 _mutation.PerformMutate(chromosome, probability);
@@ -377,7 +379,12 @@ namespace AntennaCalibrator.GA
         double[] LocalSearch(Chromosome chromosome, Func<double[], double> fitnessFunc, double step = 0.01, int maxIterations = 5)
         {
             // Coordinate descent local search:
-            // algoritmo che ottimizza una sola variabile per volta, mantenendo tutte le altre fisse.
+            // Ottimizza una sola variabile per volta, mantenendo tutte le altre fisse.
+            //
+            // Struttura dei geni:
+            // - Indici 0-2: PCO (Phase Center Offset) - determinati analiticamente, NON modificati
+            // - Indice 3: Gene fisso a 0.0 (vincolo di calibrazione), NON modificato
+            // - Indici 4-21: PCV (Phase Center Variation) - ottimizzati dalla ricerca locale
 
             double[] genes = chromosome.GetGenes().ToArray();
             double[] bestGenes = (double[])chromosome.GetGenes().ToArray().Clone();
@@ -389,6 +396,7 @@ namespace AntennaCalibrator.GA
                 bool improved = false;
                 _logger?.Verbose($"\tIteration {iter + 1}");
 
+                // Inizia da indice 4 per saltare PCO (0-2) e gene fisso (3)
                 for (int i = 4; i < bestGenes.Length; i++)
                 {
                     foreach (var direction in new[] { +1.0, -1.0 })

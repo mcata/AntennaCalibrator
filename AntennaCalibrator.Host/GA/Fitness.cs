@@ -3,12 +3,28 @@ using Serilog;
 
 namespace AntennaCalibrator.GA
 {
+    /// <summary>
+    /// Classe per la valutazione della fitness di un cromosoma.
+    /// La fitness combina RMSE dei residui su bande di elevazione e deviazione standard delle coordinate.
+    /// Entrambi i componenti sono normalizzati per garantire una scala omogenea.
+    /// </summary>
     internal class Fitness
     {
         private readonly Configuration _configuration;
         private readonly ILogger? _logger;
 
         private const double _epsilon = 1e-6;
+
+        // Pesi configurabili per la combinazione dei componenti della fitness
+        // Default: equal weighting (0.5, 0.5) come raccomandato nella letteratura NSGA-II
+        public double WeightResiduals { get; set; } = 0.5;
+        public double WeightCoordinates { get; set; } = 0.5;
+
+        // Valori di riferimento per la normalizzazione (stimati dalla letteratura GNSS)
+        // RMSE tipico per antenne ben calibrate: ~1-5mm
+        // StdDev tipica per coordinate GPS: ~10-50mm
+        private const double ReferenceRMSE = 5.0;      // mm
+        private const double ReferenceStdDev = 50.0;   // mm (somma in quadratura XYZ)
 
         private readonly List<(double min, double max)> _elevationBands = new List<(double min, double max)>
         {
@@ -33,7 +49,8 @@ namespace AntennaCalibrator.GA
             (87.6, 90.0)
         };
 
-        private double _factor = 0.0;
+        // Baseline fitness calcolata sui valori iniziali forniti (PCO/PCV di riferimento)
+        private double _baselineFitness = 0.0;
 
         public Fitness(Configuration configuration, ILogger? logger = null)
         {
@@ -106,18 +123,47 @@ namespace AntennaCalibrator.GA
                     else { rmseList.Add(0); }
                 }
 
+                // Calcola RMSE medio su tutte le bande di elevazione (in mm)
                 double meanRMSE = rmseList.Count > 0 ? rmseList.Average() : double.MaxValue;
-                double std = Math.Sqrt(statistic.StandardDev.Sum(v => v * v));
 
-                double fitnessRes = 1.0 / (meanRMSE + _epsilon);
-                double fitnessStd = 1.0 / (std + _epsilon) * 100.0;
+                // Calcola deviazione standard combinata delle coordinate (in mm)
+                // Usa la norma euclidea delle deviazioni standard XYZ
+                double stdX = statistic.StandardDev[0];
+                double stdY = statistic.StandardDev[1];
+                double stdZ = statistic.StandardDev[2];
+                double combinedStdDev = Math.Sqrt(stdX * stdX + stdY * stdY + stdZ * stdZ);
 
-                double fitness = 0.2 * fitnessRes + 0.8 * fitnessStd;
+                // Normalizzazione dei componenti rispetto ai valori di riferimento
+                // Formula: normalized = reference / (measured + epsilon)
+                // Questo porta entrambi i componenti in una scala comparabile [0, ~1]
+                // dove valori più alti indicano migliore performance
+                double normalizedRMSE = ReferenceRMSE / (meanRMSE + _epsilon);
+                double normalizedStdDev = ReferenceStdDev / (combinedStdDev + _epsilon);
 
-                var scaledFitness = fitness - _factor;
-                fitness = scaledFitness;
+                // Combinazione pesata dei componenti normalizzati
+                // I pesi sono configurabili (default 0.5, 0.5 per equal weighting)
+                double combinedFitness = WeightResiduals * normalizedRMSE +
+                                         WeightCoordinates * normalizedStdDev;
 
-                return (fitness, statistic);
+                // Normalizza i pesi se la loro somma non è 1.0
+                double weightSum = WeightResiduals + WeightCoordinates;
+                if (Math.Abs(weightSum - 1.0) > _epsilon)
+                {
+                    combinedFitness /= weightSum;
+                }
+
+                // Scala la fitness per avere valori più leggibili (moltiplica per 100)
+                double fitness = combinedFitness * 100.0;
+
+                // Sottrai la baseline per mostrare il miglioramento rispetto alla configurazione iniziale
+                // Se la fitness > baseline, abbiamo migliorato
+                double relativeFitness = fitness - _baselineFitness;
+
+                _logger?.Verbose($"Fitness components: RMSE={meanRMSE:F3}mm (norm={normalizedRMSE:F3}), " +
+                               $"StdDev={combinedStdDev:F3}mm (norm={normalizedStdDev:F3}), " +
+                               $"Combined={fitness:F3}, Relative={relativeFitness:F3}");
+
+                return (relativeFitness, statistic);
             }
             catch (Exception e)
             {
@@ -161,19 +207,28 @@ namespace AntennaCalibrator.GA
             };
         }
 
+        /// <summary>
+        /// Calcola il valore di fitness di riferimento (baseline) usando i valori PCV/PCO iniziali.
+        /// Questo permette di normalizzare la fitness e valutare il miglioramento rispetto alla configurazione iniziale.
+        /// </summary>
         private void CalculateFactor(double[] pco)
         {
-            var pcv = new List<double>();
-            for (int i = 0; i < 19; i++)
+            // Usa i valori PCV iniziali dalla configurazione (se forniti)
+            // Altrimenti usa valori zero come baseline neutra
+            var pcv = _configuration.StartValues.Values.Skip(3).Take(19).ToList();
+
+            // Se non ci sono abbastanza valori PCV, usa zero (baseline neutra)
+            while (pcv.Count < 19)
             {
-                double value = Randomizer.NextDouble(0, 5);
-                pcv.Add(50 * value);
+                pcv.Add(0.0);
             }
 
             var genes = pco.Concat(pcv).ToArray();
             var chromosome = new Chromosome(genes);
             var result = Evaluate(chromosome);
-            _factor = result.fitness;
+            _baselineFitness = result.fitness;
+
+            _logger?.Information($"Baseline fitness calculated: {_baselineFitness:F4} (using reference PCV/PCO values)");
         }
     }
 }
