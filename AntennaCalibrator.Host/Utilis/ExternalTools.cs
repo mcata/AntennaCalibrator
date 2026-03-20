@@ -7,7 +7,7 @@ namespace AntennaCalibrator.Utilis
         public static bool ExecuteRTKLIB(string config, string obsRnx, string refRnx, string navRxn, string sp3File, string outFile)
         {
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = @".\ancillary\sw\rnx2rtkpAndroid.exe";
+            startInfo.FileName = @".\ancillary\sw\rnx2rtkp.exe";
             startInfo.Arguments = string.Format("-o {0} -k {1} {2} {3} {4} {5}",
                                                 outFile, config, obsRnx, refRnx, navRxn, sp3File);
             startInfo.CreateNoWindow = true;

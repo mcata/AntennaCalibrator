@@ -24,7 +24,7 @@
     <EmbeddedResource Include="Ancillary\sw\ChartBuilder.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ancillary\sw\rnx2rtkpAndroid.exe">
+    <EmbeddedResource Include="Ancillary\sw\rnx2rtkp.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
