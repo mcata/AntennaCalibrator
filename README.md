@@ -172,6 +172,9 @@ The application includes a graphical interface developed with .NET MAUI that all
 * Monitor the best chromosomes
 * Observe fitness statistics
 
+<img width="1876" height="967" alt="Screenshot 2025-06-01 205722" src="https://github.com/user-attachments/assets/e65a8877-e422-4432-ba11-7e587d04e198" />
+
+
 ## Final Output
 
 The algorithm produces:
